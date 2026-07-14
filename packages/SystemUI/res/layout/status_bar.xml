@@ -104,6 +104,24 @@
                         android:gravity="center_vertical|start"
                     />
 
+                    <com.android.systemui.statusbar.LineageStatusBarItemHolder
+                        android:id="@+id/yozakura_carrier_label_holder"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:paddingStart="4dp">
+
+                        <com.android.systemui.statusbar.YozakuraCarrierLabel
+                            android:id="@+id/yozakura_carrier_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:singleLine="true"
+                            android:gravity="center_vertical"
+                            android:textAppearance="@style/TextAppearance.StatusBar.Default"
+                            android:visibility="gone" />
+
+                    </com.android.systemui.statusbar.LineageStatusBarItemHolder>
+
                     <include layout="@layout/ongoing_activity_chip_primary"
                         android:id="@+id/ongoing_activity_chip_primary"/>
 

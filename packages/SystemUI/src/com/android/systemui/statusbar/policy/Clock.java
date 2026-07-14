@@ -81,6 +81,7 @@ public class Clock extends TextView implements
         DarkReceiver {
 
     public static final String CLOCK_SECONDS = "clock_seconds";
+    public static final String KEY_CLOCK_DATE = "yozakura_clock_date";
     private static final String CLOCK_SUPER_PARCELABLE = "clock_super_parcelable";
     private static final String CURRENT_USER_ID = "current_user_id";
     private static final String VISIBLE_BY_POLICY = "visible_by_policy";
@@ -110,6 +111,7 @@ public class Clock extends TextView implements
 
     private int mAmPmStyle = AM_PM_STYLE_GONE;
     private boolean mShowSeconds;
+    private int mClockDate;
     private ContentObserver mContentObserver;
     private Handler mSecondsHandler;
 
@@ -225,7 +227,7 @@ public class Clock extends TextView implements
             mBroadcastDispatcher.registerReceiverWithHandler(mIntentReceiver, filter,
                     Dependency.get(Dependency.TIME_TICK_HANDLER), UserHandle.ALL);
             Dependency.get(TunerService.class).addTunable(this, CLOCK_SECONDS,
-                    StatusBarIconController.ICON_HIDE_LIST);
+                    StatusBarIconController.ICON_HIDE_LIST, KEY_CLOCK_DATE);
             mContext.getContentResolver().registerContentObserver(
                     LineageSettings.System.getUriFor(LineageSettings.System.STATUS_BAR_AM_PM),
                     false, mContentObserver);
@@ -345,6 +347,12 @@ public class Clock extends TextView implements
         if (mDemoMode || mCalendar == null) return;
         mCalendar.setTimeInMillis(System.currentTimeMillis());
         CharSequence smallTime = getSmallTime();
+        if (mClockDate != 0 && mCalendar != null) {
+            final String skeleton = (mClockDate == 2) ? "EEEMMMd" : "EEE";
+            final String datePattern = mDateTimePatternGenerator != null ? mDateTimePatternGenerator.getBestPattern(skeleton) : skeleton;
+            final CharSequence dateStr = DateFormat.format(datePattern, mCalendar);
+            smallTime = new SpannableStringBuilder(dateStr).append("  ").append(smallTime);
+        }
         // Setting text actually triggers a layout pass (because the text view is set to
         // wrap_content width and TextView always relayouts for this). Avoid needless
         // relayout if the text didn't actually change.
@@ -363,6 +371,11 @@ public class Clock extends TextView implements
         if (CLOCK_SECONDS.equals(key)) {
             mShowSeconds = TunerService.parseIntegerSwitch(newValue, false);
             updateShowSeconds();
+        } else if (KEY_CLOCK_DATE.equals(key)) {
+            int v = 0;
+            try { v = newValue != null ? Integer.parseInt(newValue) : 0; } catch (NumberFormatException e) { v = 0; }
+            mClockDate = v;
+            updateClock(true);
         } else if (!StatusBarRootModernization.isEnabled()) {
             if (StatusBarIconController.ICON_HIDE_LIST.equals(key)) {
                 setClockVisibleByUser(

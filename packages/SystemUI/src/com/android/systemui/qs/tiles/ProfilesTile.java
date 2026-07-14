@@ -79,7 +79,7 @@ public class ProfilesTile extends QSTileImpl<State> {
     private static final String INTERACTION_JANK_TAG = "profiles";
 
     private static final Intent PROFILES_SETTINGS =
-            new Intent("org.yozakuraos.lineageparts.PROFILES_SETTINGS");
+            new Intent("org.yozakuraos.yozakuraparts.PROFILES_SETTINGS");
 
     @Nullable
     private Icon mIcon = null;

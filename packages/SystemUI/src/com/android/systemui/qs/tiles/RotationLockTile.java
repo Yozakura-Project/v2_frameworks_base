@@ -64,7 +64,7 @@ public class RotationLockTile extends QSTileImpl<BooleanState> implements
     private static final String EMPTY_SECONDARY_STRING = "";
 
     private static final String ROTATION_SETTINGS =
-            "org.yozakuraos.lineageparts.DISPLAY_ROTATION";
+            "org.yozakuraos.yozakuraparts.DISPLAY_ROTATION";
 
     private final Icon mIcon =
             maybeLoadResourceIcon(com.android.internal.R.drawable.ic_qs_auto_rotate);

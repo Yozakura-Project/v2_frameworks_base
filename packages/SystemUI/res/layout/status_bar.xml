@@ -255,4 +255,11 @@
 
     </com.android.keyguard.AlphaOptimizedLinearLayout>
 
+    <com.android.systemui.statusbar.YozakuraBatteryBar
+        android:id="@+id/yozakura_battery_bar"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_gravity="bottom"
+        android:visibility="gone" />
+
 </com.android.systemui.statusbar.phone.PhoneStatusBarView>

@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,13 +28,19 @@ import android.widget.FrameLayout;
  *   yozakura_battery_bar          (Settings.Secure int 0/1)      enable
  *   yozakura_battery_bar_position (Settings.Secure int 0=bottom/1=top)
  *   yozakura_battery_bar_height   (Settings.Secure int 0=thin/1=med/2=thick)
+ *   yozakura_battery_bar_color    (Settings.Secure int 0=dynamic/1=white/2=accent/3=red/4=green/5=blue)
  */
 public class YozakuraBatteryBar extends View {
 
     private static final String KEY_ENABLED = "yozakura_battery_bar";
     private static final String KEY_POSITION = "yozakura_battery_bar_position";
     private static final String KEY_HEIGHT = "yozakura_battery_bar_height";
+    private static final String KEY_COLOR = "yozakura_battery_bar_color";
     private static final int LOW_LEVEL = 15;
+
+    private static final int COLOR_GREEN = 0xFF4CAF50;
+    private static final int COLOR_RED = 0xFFF44336;
+    private static final int COLOR_BLUE = 0xFF2196F3;
 
     private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -42,6 +49,7 @@ public class YozakuraBatteryBar extends View {
     private boolean mEnabled;
     private int mLevel = 0;
     private boolean mCharging;
+    private int mColorMode = 0;
 
     private final ContentObserver mObserver = new ContentObserver(mHandler) {
         @Override
@@ -90,6 +98,7 @@ public class YozakuraBatteryBar extends View {
         cr.registerContentObserver(Settings.Secure.getUriFor(KEY_ENABLED), false, mObserver);
         cr.registerContentObserver(Settings.Secure.getUriFor(KEY_POSITION), false, mObserver);
         cr.registerContentObserver(Settings.Secure.getUriFor(KEY_HEIGHT), false, mObserver);
+        cr.registerContentObserver(Settings.Secure.getUriFor(KEY_COLOR), false, mObserver);
         getContext().registerReceiver(mBatteryReceiver,
                 new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         updateSettings();
@@ -113,6 +122,7 @@ public class YozakuraBatteryBar extends View {
     private void updateSettings() {
         final android.content.ContentResolver cr = getContext().getContentResolver();
         mEnabled = Settings.Secure.getInt(cr, KEY_ENABLED, 0) == 1;
+        mColorMode = Settings.Secure.getInt(cr, KEY_COLOR, 0);
         final int pos = Settings.Secure.getInt(cr, KEY_POSITION, 0);
         final int hIdx = Settings.Secure.getInt(cr, KEY_HEIGHT, 0);
         final int hDp = (hIdx == 2 ? 6 : hIdx == 1 ? 4 : 2);
@@ -140,20 +150,42 @@ public class YozakuraBatteryBar extends View {
         invalidate();
     }
 
+    private int resolveColor() {
+        switch (mColorMode) {
+            case 1:
+                return Color.WHITE;
+            case 2: {
+                final TypedValue tv = new TypedValue();
+                if (getContext().getTheme().resolveAttribute(
+                        android.R.attr.colorAccent, tv, true) && tv.data != 0) {
+                    return tv.data;
+                }
+                return Color.WHITE;
+            }
+            case 3:
+                return COLOR_RED;
+            case 4:
+                return COLOR_GREEN;
+            case 5:
+                return COLOR_BLUE;
+            case 0:
+            default:
+                if (mCharging) {
+                    return COLOR_GREEN;
+                }
+                if (mLevel <= LOW_LEVEL) {
+                    return COLOR_RED;
+                }
+                return Color.WHITE;
+        }
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         if (!mEnabled || mLevel <= 0) {
             return;
         }
-        final int color;
-        if (mCharging) {
-            color = 0xFF4CAF50;
-        } else if (mLevel <= LOW_LEVEL) {
-            color = 0xFFF44336;
-        } else {
-            color = Color.WHITE;
-        }
-        mPaint.setColor(color);
+        mPaint.setColor(resolveColor());
         final int w = getWidth() * mLevel / 100;
         canvas.drawRect(0f, 0f, (float) w, (float) getHeight(), mPaint);
     }

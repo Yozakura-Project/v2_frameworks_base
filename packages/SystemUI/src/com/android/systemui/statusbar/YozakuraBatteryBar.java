@@ -24,15 +24,15 @@ import android.widget.FrameLayout;
 
 /**
  * YozakuraOS status bar battery bar.
- * Draws a thin horizontal bar (width proportional to battery level) at the top
- * or bottom edge of the status bar.
- *   yozakura_battery_bar          (Settings.Secure int 0/1)  enable
+ *   yozakura_battery_bar          (Settings.Secure int 0/1)      enable
  *   yozakura_battery_bar_position (Settings.Secure int 0=bottom/1=top)
+ *   yozakura_battery_bar_height   (Settings.Secure int 0=thin/1=med/2=thick)
  */
 public class YozakuraBatteryBar extends View {
 
     private static final String KEY_ENABLED = "yozakura_battery_bar";
     private static final String KEY_POSITION = "yozakura_battery_bar_position";
+    private static final String KEY_HEIGHT = "yozakura_battery_bar_height";
     private static final int LOW_LEVEL = 15;
 
     private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -86,10 +86,10 @@ public class YozakuraBatteryBar extends View {
             return;
         }
         mAttached = true;
-        getContext().getContentResolver().registerContentObserver(
-                Settings.Secure.getUriFor(KEY_ENABLED), false, mObserver);
-        getContext().getContentResolver().registerContentObserver(
-                Settings.Secure.getUriFor(KEY_POSITION), false, mObserver);
+        final android.content.ContentResolver cr = getContext().getContentResolver();
+        cr.registerContentObserver(Settings.Secure.getUriFor(KEY_ENABLED), false, mObserver);
+        cr.registerContentObserver(Settings.Secure.getUriFor(KEY_POSITION), false, mObserver);
+        cr.registerContentObserver(Settings.Secure.getUriFor(KEY_HEIGHT), false, mObserver);
         getContext().registerReceiver(mBatteryReceiver,
                 new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         updateSettings();
@@ -111,17 +111,29 @@ public class YozakuraBatteryBar extends View {
     }
 
     private void updateSettings() {
-        mEnabled = Settings.Secure.getInt(
-                getContext().getContentResolver(), KEY_ENABLED, 0) == 1;
-        final int pos = Settings.Secure.getInt(
-                getContext().getContentResolver(), KEY_POSITION, 0);
+        final android.content.ContentResolver cr = getContext().getContentResolver();
+        mEnabled = Settings.Secure.getInt(cr, KEY_ENABLED, 0) == 1;
+        final int pos = Settings.Secure.getInt(cr, KEY_POSITION, 0);
+        final int hIdx = Settings.Secure.getInt(cr, KEY_HEIGHT, 0);
+        final int hDp = (hIdx == 2 ? 6 : hIdx == 1 ? 4 : 2);
+        final int hPx = Math.round(hDp * getResources().getDisplayMetrics().density);
         final ViewGroup.LayoutParams lp = getLayoutParams();
-        if (lp instanceof FrameLayout.LayoutParams) {
-            final FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) lp;
-            final int g = (pos == 1 ? Gravity.TOP : Gravity.BOTTOM);
-            if (flp.gravity != g) {
-                flp.gravity = g;
-                setLayoutParams(flp);
+        if (lp != null) {
+            boolean changed = false;
+            if (lp.height != hPx) {
+                lp.height = hPx;
+                changed = true;
+            }
+            if (lp instanceof FrameLayout.LayoutParams) {
+                final FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) lp;
+                final int g = (pos == 1 ? Gravity.TOP : Gravity.BOTTOM);
+                if (flp.gravity != g) {
+                    flp.gravity = g;
+                    changed = true;
+                }
+            }
+            if (changed) {
+                setLayoutParams(lp);
             }
         }
         setVisibility(mEnabled ? VISIBLE : GONE);

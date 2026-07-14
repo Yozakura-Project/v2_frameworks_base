@@ -17,17 +17,22 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 /**
  * YozakuraOS status bar battery bar.
- * Draws a thin horizontal bar (width proportional to battery level) across the
- * bottom edge of the status bar when yozakura_battery_bar (Settings.Secure 0/1)
- * is enabled. Color: charging=green, low=red, otherwise white.
+ * Draws a thin horizontal bar (width proportional to battery level) at the top
+ * or bottom edge of the status bar.
+ *   yozakura_battery_bar          (Settings.Secure int 0/1)  enable
+ *   yozakura_battery_bar_position (Settings.Secure int 0=bottom/1=top)
  */
 public class YozakuraBatteryBar extends View {
 
     private static final String KEY_ENABLED = "yozakura_battery_bar";
+    private static final String KEY_POSITION = "yozakura_battery_bar_position";
     private static final int LOW_LEVEL = 15;
 
     private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -83,6 +88,8 @@ public class YozakuraBatteryBar extends View {
         mAttached = true;
         getContext().getContentResolver().registerContentObserver(
                 Settings.Secure.getUriFor(KEY_ENABLED), false, mObserver);
+        getContext().getContentResolver().registerContentObserver(
+                Settings.Secure.getUriFor(KEY_POSITION), false, mObserver);
         getContext().registerReceiver(mBatteryReceiver,
                 new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         updateSettings();
@@ -106,6 +113,17 @@ public class YozakuraBatteryBar extends View {
     private void updateSettings() {
         mEnabled = Settings.Secure.getInt(
                 getContext().getContentResolver(), KEY_ENABLED, 0) == 1;
+        final int pos = Settings.Secure.getInt(
+                getContext().getContentResolver(), KEY_POSITION, 0);
+        final ViewGroup.LayoutParams lp = getLayoutParams();
+        if (lp instanceof FrameLayout.LayoutParams) {
+            final FrameLayout.LayoutParams flp = (FrameLayout.LayoutParams) lp;
+            final int g = (pos == 1 ? Gravity.TOP : Gravity.BOTTOM);
+            if (flp.gravity != g) {
+                flp.gravity = g;
+                setLayoutParams(flp);
+            }
+        }
         setVisibility(mEnabled ? VISIBLE : GONE);
         invalidate();
     }

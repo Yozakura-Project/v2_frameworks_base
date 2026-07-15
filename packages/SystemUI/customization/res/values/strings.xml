@@ -22,7 +22,4 @@
 
     <!-- default clock face description [CHAR LIMIT=NONE]-->
     <string name="clock_default_description">Digital default</string>
-    <!-- Yozakura custom clock face -->
-    <string name="clock_yozakura_name">夜桜</string>
-    <string name="clock_yozakura_description">Sakura-night digital clock</string>
 </resources>

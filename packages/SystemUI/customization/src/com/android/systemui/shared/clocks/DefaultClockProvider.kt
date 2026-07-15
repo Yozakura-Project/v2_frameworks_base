@@ -39,6 +39,7 @@ import com.android.systemui.shared.clocks.FlexClockController.Companion.getDefau
 private val TAG = DefaultClockProvider::class.simpleName
 const val DEFAULT_CLOCK_ID = "DEFAULT"
 const val FLEX_CLOCK_ID = "DIGITAL_CLOCK_FLEX"
+const val YOZAKURA_CLOCK_ID = "YOZAKURA"
 
 /** Provides the default system clock */
 class DefaultClockProvider
@@ -66,12 +67,17 @@ constructor(
                     replacementTarget = DEFAULT_CLOCK_ID,
                 )
         }
+        clocks += ClockMetadata(YOZAKURA_CLOCK_ID)
         return clocks
     }
 
     override fun createClock(ctx: Context, settings: ClockSettings): ClockController {
         if (getClocks().all { it.clockId != settings.clockId }) {
             throw IllegalArgumentException("${settings.clockId} is unsupported by $TAG")
+        }
+
+        if (settings.clockId == YOZAKURA_CLOCK_ID) {
+            return YozakuraClockController(ctx, layoutInflater, resources, settings, messageBuffers)
         }
 
         return if (isClockReactiveVariantsEnabled) {
@@ -102,6 +108,18 @@ constructor(
     override fun getClockPickerConfig(settings: ClockSettings): ClockPickerConfig {
         if (getClocks().all { it.clockId != settings.clockId }) {
             throw IllegalArgumentException("${settings.clockId} is unsupported by $TAG")
+        }
+
+        if (settings.clockId == YOZAKURA_CLOCK_ID) {
+            return ClockPickerConfig(
+                YOZAKURA_CLOCK_ID,
+                resources.getString(R.string.clock_yozakura_name),
+                resources.getString(R.string.clock_yozakura_description),
+                resources.getDrawable(R.drawable.clock_yozakura_thumbnail, null),
+                isReactiveToTone = true,
+                axes = emptyList(),
+                presetConfig = null,
+            )
         }
 
         if (!isClockReactiveVariantsEnabled) {

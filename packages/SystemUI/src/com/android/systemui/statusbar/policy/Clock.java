@@ -84,6 +84,13 @@ public class Clock extends TextView implements
     public static final String KEY_CLOCK_DATE = "yozakura_clock_date";
     public static final String KEY_CLOCK_DATE_FORMAT = "yozakura_clock_date_format";
     public static final String KEY_CLOCK_DATE_STYLE = "yozakura_clock_date_style";
+    public static final String KEY_CLOCK_DATE_POSITION = "yozakura_clock_date_position";
+
+    private static final int DATE_HIDDEN = 0;
+    private static final int DATE_SMALL = 1;
+    private static final int DATE_STYLE_LOWERCASE = 1;
+    private static final int DATE_STYLE_UPPERCASE = 2;
+    private static final int DATE_POSITION_RIGHT = 1;
     private static final String CLOCK_SUPER_PARCELABLE = "clock_super_parcelable";
     private static final String CURRENT_USER_ID = "current_user_id";
     private static final String VISIBLE_BY_POLICY = "visible_by_policy";
@@ -116,6 +123,7 @@ public class Clock extends TextView implements
     private int mClockDate;
     private String mClockDateFormat = "EEE, MMM d";
     private int mClockDateStyle;
+    private int mClockDatePosition;
     private ContentObserver mContentObserver;
     private Handler mSecondsHandler;
 
@@ -232,7 +240,7 @@ public class Clock extends TextView implements
                     Dependency.get(Dependency.TIME_TICK_HANDLER), UserHandle.ALL);
             Dependency.get(TunerService.class).addTunable(this, CLOCK_SECONDS,
                     StatusBarIconController.ICON_HIDE_LIST, KEY_CLOCK_DATE,
-                    KEY_CLOCK_DATE_FORMAT, KEY_CLOCK_DATE_STYLE);
+                    KEY_CLOCK_DATE_FORMAT, KEY_CLOCK_DATE_STYLE, KEY_CLOCK_DATE_POSITION);
             mContext.getContentResolver().registerContentObserver(
                     LineageSettings.System.getUriFor(LineageSettings.System.STATUS_BAR_AM_PM),
                     false, mContentObserver);
@@ -352,19 +360,35 @@ public class Clock extends TextView implements
         if (mDemoMode || mCalendar == null) return;
         mCalendar.setTimeInMillis(System.currentTimeMillis());
         CharSequence smallTime = getSmallTime();
-        if (mClockDate != 0 && mCalendar != null) {
+        if (mClockDate != DATE_HIDDEN && mCalendar != null) {
             String dateStr = DateFormat.format(mClockDateFormat, mCalendar).toString();
             final java.util.Locale loc = java.util.Locale.getDefault();
-            if (mClockDateStyle == 1) {
+            if (mClockDateStyle == DATE_STYLE_LOWERCASE) {
                 dateStr = dateStr.toLowerCase(loc);
-            } else if (mClockDateStyle == 2) {
+            } else if (mClockDateStyle == DATE_STYLE_UPPERCASE) {
                 dateStr = dateStr.toUpperCase(loc);
             }
-            final SpannableStringBuilder dsb = new SpannableStringBuilder(dateStr);
-            if (mClockDate == 1) {
-                dsb.setSpan(new RelativeSizeSpan(0.7f), 0, dsb.length(), Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
+            final SpannableStringBuilder dsb = new SpannableStringBuilder();
+            if (mClockDatePosition == DATE_POSITION_RIGHT) {
+                // clock first, then date (date on the right of the time)
+                dsb.append(smallTime).append("  ");
+                final int dateStart = dsb.length();
+                dsb.append(dateStr);
+                if (mClockDate == DATE_SMALL) {
+                    dsb.setSpan(new RelativeSizeSpan(0.7f), dateStart, dsb.length(),
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+            } else {
+                // date first (default), then clock (date on the left of the time)
+                dsb.append(dateStr);
+                if (mClockDate == DATE_SMALL) {
+                    // Restrict the shrink to the date only; EXCLUSIVE_EXCLUSIVE so the
+                    // appended time is NOT absorbed into the span.
+                    dsb.setSpan(new RelativeSizeSpan(0.7f), 0, dateStr.length(),
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+                dsb.append("  ").append(smallTime);
             }
-            dsb.append("  ").append(smallTime);
             smallTime = dsb;
         }
         // Setting text actually triggers a layout pass (because the text view is set to
@@ -397,6 +421,11 @@ public class Clock extends TextView implements
             int vs = 0;
             try { vs = newValue != null ? Integer.parseInt(newValue) : 0; } catch (NumberFormatException e) { vs = 0; }
             mClockDateStyle = vs;
+            updateClock(true);
+        } else if (KEY_CLOCK_DATE_POSITION.equals(key)) {
+            int vp = 0;
+            try { vp = newValue != null ? Integer.parseInt(newValue) : 0; } catch (NumberFormatException e) { vp = 0; }
+            mClockDatePosition = vp;
             updateClock(true);
         } else if (!StatusBarRootModernization.isEnabled()) {
             if (StatusBarIconController.ICON_HIDE_LIST.equals(key)) {

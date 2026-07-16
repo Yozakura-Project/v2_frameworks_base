@@ -186,7 +186,9 @@ public class QuickQSPanel extends QSPanel {
         public boolean updateResources() {
             mResourceCellHeightResId = R.dimen.qs_quick_tile_size;
             boolean b = super.updateResources();
-            mMaxAllowedRows = getResources().getInteger(R.integer.quick_qs_panel_max_rows);
+            // YozakuraOS: honor user-configured QQS row count
+            mMaxAllowedRows = getUserRows(mContext,
+                    getResources().getInteger(R.integer.quick_qs_panel_max_rows));
             return b;
         }
 

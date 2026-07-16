@@ -44,6 +44,15 @@ public class TileLayout extends ViewGroup implements QSTileLayout {
         return v > 0 ? v : defaultColumns;
     }
 
+    // YozakuraOS: user-configurable QQS (collapsed header) row count
+    public static final String QQS_ROWS_KEY = "yozakura_qqs_rows";
+
+    public static int getUserRows(Context context, int defaultRows) {
+        int v = Settings.Secure.getIntForUser(context.getContentResolver(),
+                QQS_ROWS_KEY, 0, UserHandle.USER_CURRENT);
+        return v > 0 ? v : defaultRows;
+    }
+
     private final ContentObserver mColumnsObserver =
             new ContentObserver(new Handler(mContext.getMainLooper())) {
                 @Override
@@ -95,6 +104,9 @@ public class TileLayout extends ViewGroup implements QSTileLayout {
         super.onAttachedToWindow();
         mContext.getContentResolver().registerContentObserver(
                 Settings.Secure.getUriFor(QS_COLUMNS_KEY), false, mColumnsObserver,
+                UserHandle.USER_ALL);
+        mContext.getContentResolver().registerContentObserver(
+                Settings.Secure.getUriFor(QQS_ROWS_KEY), false, mColumnsObserver,
                 UserHandle.USER_ALL);
     }
 

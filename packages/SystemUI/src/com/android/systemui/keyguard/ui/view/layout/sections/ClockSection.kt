@@ -17,6 +17,9 @@
 
 package com.android.systemui.keyguard.ui.view.layout.sections
 
+import android.os.UserHandle
+import android.provider.Settings
+
 import android.content.Context
 import android.view.View
 import androidx.constraintlayout.widget.Barrier
@@ -120,6 +123,18 @@ constructor(
             setVisibility(getNonTargetClockFace(clock).views, GONE)
             setAlpha(getTargetClockFace(clock).views, 1F)
             setAlpha(getNonTargetClockFace(clock).views, 0F)
+
+            // YozakuraOS: hide AOSP default clock when a custom clock style is active (avoid doubling)
+            val isCustomClockEnabled = Settings.Secure.getIntForUser(
+                    context.contentResolver,
+                    "lock_screen_custom_clock_style",
+                    0,
+                    UserHandle.USER_CURRENT
+            ) != 0
+            if (isCustomClockEnabled) {
+                setAlpha(ClockViewIds.LOCKSCREEN_CLOCK_VIEW_SMALL, 0F)
+                setAlpha(ClockViewIds.LOCKSCREEN_CLOCK_VIEW_LARGE, 0F)
+            }
 
             if (!keyguardClockViewModel.isLargeClockVisible.value) {
                 if (keyguardClockViewModel.shouldDateWeatherBeBelowSmallClock.value) {

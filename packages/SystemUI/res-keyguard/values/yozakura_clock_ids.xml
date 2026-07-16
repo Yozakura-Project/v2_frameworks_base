@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="original_typeface" />
+    <item type="id" name="original_text_color" />
+    <item type="id" name="keyguard_weather_area" />
+    <item type="id" name="keyguard_info_widgets" />
+    <item type="id" name="keyguard_widgets" />
+</resources>

@@ -102,6 +102,15 @@ public class QuickQSPanel extends QSPanel {
     }
 
     public int getNumQuickTiles() {
+        // YozakuraOS: when the user sets a custom QQS row count, size the
+        // header to columns x rows so the extra rows are actually filled.
+        int userRows = android.provider.Settings.Secure.getIntForUser(
+                getContext().getContentResolver(),
+                TileLayout.QQS_ROWS_KEY, 0, android.os.UserHandle.USER_CURRENT);
+        if (userRows > 0 && mTileLayout instanceof QQSSideLabelTileLayout) {
+            int cols = ((QQSSideLabelTileLayout) mTileLayout).getColumnsCount();
+            return Math.max(1, cols) * userRows;
+        }
         return mMaxTiles;
     }
 
@@ -190,6 +199,10 @@ public class QuickQSPanel extends QSPanel {
             mMaxAllowedRows = getUserRows(mContext,
                     getResources().getInteger(R.integer.quick_qs_panel_max_rows));
             return b;
+        }
+
+        int getColumnsCount() {
+            return mColumns;
         }
 
         @Override

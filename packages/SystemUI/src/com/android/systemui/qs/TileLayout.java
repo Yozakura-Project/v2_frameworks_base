@@ -4,6 +4,9 @@ import static com.android.systemui.util.Utils.useQsMediaPlayer;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.database.ContentObserver;
+import android.os.Handler;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.AttributeSet;
 import android.view.View;
@@ -31,6 +34,23 @@ public class TileLayout extends ViewGroup implements QSTileLayout {
     public static final int NO_MAX_COLUMNS = 100;
 
     private static final String TAG = "TileLayout";
+
+    // YozakuraOS: user-configurable QS column count (Settings.Secure, 0/unset = use resource default)
+    public static final String QS_COLUMNS_KEY = "yozakura_qs_columns";
+
+    public static int getUserColumns(Context context, int defaultColumns) {
+        int v = Settings.Secure.getIntForUser(context.getContentResolver(),
+                QS_COLUMNS_KEY, 0, UserHandle.USER_CURRENT);
+        return v > 0 ? v : defaultColumns;
+    }
+
+    private final ContentObserver mColumnsObserver =
+            new ContentObserver(new Handler(mContext.getMainLooper())) {
+                @Override
+                public void onChange(boolean selfChange) {
+                    updateResources();
+                }
+            };
 
     protected int mColumns;
     protected int mCellWidth;
@@ -68,6 +88,20 @@ public class TileLayout extends ViewGroup implements QSTileLayout {
                 || useQsMediaPlayer(context));
         mTempTextView = new TextView(context);
         updateResources();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mContext.getContentResolver().registerContentObserver(
+                Settings.Secure.getUriFor(QS_COLUMNS_KEY), false, mColumnsObserver,
+                UserHandle.USER_ALL);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mContext.getContentResolver().unregisterContentObserver(mColumnsObserver);
     }
 
     @Override
@@ -151,6 +185,7 @@ public class TileLayout extends ViewGroup implements QSTileLayout {
         int columns = useSmallLandscapeLockscreenResources()
                 ? res.getInteger(R.integer.small_land_lockscreen_quick_settings_num_columns)
                 : res.getInteger(R.integer.quick_settings_num_columns);
+        columns = getUserColumns(mContext, columns);
         mResourceColumns = Math.max(1, columns);
         mResourceCellHeight = res.getDimensionPixelSize(mResourceCellHeightResId);
         mCellMarginHorizontal = res.getDimensionPixelSize(R.dimen.qs_tile_margin_horizontal);

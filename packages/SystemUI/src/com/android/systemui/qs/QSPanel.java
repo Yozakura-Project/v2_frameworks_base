@@ -682,7 +682,8 @@ public class QSPanel extends LinearLayout implements Tunable {
 
     void setColumnRowLayout(boolean withMedia) {
         mTileLayout.setMinRows(withMedia ? 2 : 1);
-        mTileLayout.setMaxColumns(withMedia ? 2 : 4);
+        // YozakuraOS: honor user-configured QS column count (no media)
+        mTileLayout.setMaxColumns(withMedia ? 2 : TileLayout.getUserColumns(mContext, 4));
         placeTileLayoutForScene(withMedia);
     }
 

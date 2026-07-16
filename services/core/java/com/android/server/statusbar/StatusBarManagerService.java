@@ -2803,6 +2803,29 @@ public class StatusBarManagerService extends IStatusBarService.Stub implements D
         }
     }
 
+    /**
+     * Allows SystemUI restart only
+     */
+    @Override
+    public void restartSystemUI() {
+        enforceStatusBarService();
+        enforceValidCallingUser();
+        final long identity = Binder.clearCallingIdentity();
+        try {
+            mHandler.post(() -> {
+                IStatusBar bar = mBar;
+                if (bar != null) {
+                    try {
+                        bar.restartSystemUI();
+                    } catch (RemoteException e) {
+                    }
+                }
+            });
+        } finally {
+            Binder.restoreCallingIdentity(identity);
+        }
+    }
+
     /** @hide */
     public void passThroughShellCommand(String[] args, FileDescriptor fd) {
         enforceStatusBarOrShell();

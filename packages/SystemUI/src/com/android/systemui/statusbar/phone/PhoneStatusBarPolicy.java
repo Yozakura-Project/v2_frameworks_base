@@ -742,6 +742,11 @@ public class PhoneStatusBarPolicy
     }
 
     @Override
+    public void restartSystemUI() {
+        Process.killProcess(Process.myPid());
+    }
+
+    @Override
     public void onKeyguardShowingChanged() {
         updateProfileIcon();
         registerBlockedStatusChangedCallbackForLastResumedActivityUid();

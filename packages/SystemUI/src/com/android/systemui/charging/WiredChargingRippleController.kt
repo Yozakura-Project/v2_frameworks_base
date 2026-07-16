@@ -197,7 +197,7 @@ class WiredChargingRippleController @Inject constructor(
     }
 
     private fun updateRippleColor() {
-        rippleView.setColor(Utils.getColorAttr(context, android.R.attr.colorAccent).defaultColor)
+        rippleView.setColor(0xFFF48FB1.toInt()) // YozakuraOS: sakura-pink charging ripple
     }
 
     inner class ChargingRippleCommand : Command {

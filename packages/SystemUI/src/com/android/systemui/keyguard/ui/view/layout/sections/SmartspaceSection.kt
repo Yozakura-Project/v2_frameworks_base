@@ -147,7 +147,20 @@ constructor(
                 dateView?.orientation = LinearLayout.VERTICAL
             }
         }
+        val isCustomClockEnabled =
+            android.provider.Settings.Secure.getIntForUser(
+                context.contentResolver,
+                "lock_screen_custom_clock_style",
+                0,
+                android.os.UserHandle.USER_CURRENT,
+            ) != 0
         constraintSet.apply {
+            if (isCustomClockEnabled) {
+                // YozakuraOS: hide the default smartspace/date so it doesn't
+                // double up with the custom clock face's own date.
+                setVisibility(sharedR.id.bc_smartspace_view, GONE)
+                setVisibility(sharedR.id.date_smartspace_view, GONE)
+            }
             constrainHeight(sharedR.id.date_smartspace_view, ConstraintSet.WRAP_CONTENT)
             constrainWidth(sharedR.id.date_smartspace_view, ConstraintSet.WRAP_CONTENT)
             if (dateWeatherBelowSmallClock || !dateWeatherBelowLargeClock) {

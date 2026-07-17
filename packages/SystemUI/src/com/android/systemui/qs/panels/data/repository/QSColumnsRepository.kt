@@ -16,9 +16,11 @@
 
 package com.android.systemui.qs.panels.data.repository
 
+import android.content.Context
 import android.content.res.Resources
 import com.android.systemui.common.ui.data.repository.ConfigurationRepository
 import com.android.systemui.dagger.SysUISingleton
+import com.android.systemui.dagger.qualifiers.Application
 import com.android.systemui.res.R
 import com.android.systemui.shade.ShadeDisplayAware
 import com.android.systemui.util.kotlin.emitOnStart
@@ -30,6 +32,7 @@ import kotlinx.coroutines.flow.mapLatest
 class QSColumnsRepository
 @Inject
 constructor(
+    @Application private val context: Context,
     @ShadeDisplayAware private val resources: Resources,
     @ShadeDisplayAware configurationRepository: ConfigurationRepository,
 ) {
@@ -43,7 +46,15 @@ constructor(
         }
     val columns: Flow<Int> =
         configurationRepository.onConfigurationChange.emitOnStart().mapLatest {
-            resources.getInteger(R.integer.quick_settings_infinite_grid_num_columns)
+            val userColumns =
+                android.provider.Settings.Secure.getIntForUser(
+                    context.contentResolver,
+                    "yozakura_qs_columns",
+                    0,
+                    android.os.UserHandle.USER_CURRENT,
+                )
+            if (userColumns > 0) userColumns
+            else resources.getInteger(R.integer.quick_settings_infinite_grid_num_columns)
         }
     val defaultColumns: Int =
         resources.getInteger(R.integer.quick_settings_infinite_grid_num_columns)

@@ -26,7 +26,16 @@ import com.android.systemui.shade.ShadeDisplayAware
 import com.android.systemui.util.kotlin.emitOnStart
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import android.database.ContentObserver
+import android.os.Handler
+import android.os.Looper
+import android.os.UserHandle
+import android.provider.Settings
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.merge
 
 @SysUISingleton
 class QSColumnsRepository
@@ -44,18 +53,37 @@ constructor(
         configurationRepository.onConfigurationChange.emitOnStart().mapLatest {
             resources.getInteger(R.integer.quick_settings_dual_shade_num_columns)
         }
+    // YozakuraOS: re-emit when the user changes yozakura_qs_columns so the
+    // Compose QS grid updates live without needing a SystemUI restart.
+    private val qsColumnsSettingChange: Flow<Unit> = callbackFlow {
+        val observer =
+            object : ContentObserver(Handler(Looper.getMainLooper())) {
+                override fun onChange(selfChange: Boolean) {
+                    trySend(Unit)
+                }
+            }
+        context.contentResolver.registerContentObserver(
+            Settings.Secure.getUriFor("yozakura_qs_columns"),
+            false,
+            observer,
+        )
+        awaitClose { context.contentResolver.unregisterContentObserver(observer) }
+    }
+
     val columns: Flow<Int> =
-        configurationRepository.onConfigurationChange.emitOnStart().mapLatest {
-            val userColumns =
-                android.provider.Settings.Secure.getIntForUser(
-                    context.contentResolver,
-                    "yozakura_qs_columns",
-                    0,
-                    android.os.UserHandle.USER_CURRENT,
-                )
-            if (userColumns > 0) userColumns
-            else resources.getInteger(R.integer.quick_settings_infinite_grid_num_columns)
-        }
+        merge(configurationRepository.onConfigurationChange.map {}, qsColumnsSettingChange)
+            .emitOnStart()
+            .mapLatest {
+                val userColumns =
+                    Settings.Secure.getIntForUser(
+                        context.contentResolver,
+                        "yozakura_qs_columns",
+                        0,
+                        UserHandle.USER_CURRENT,
+                    )
+                if (userColumns > 0) userColumns
+                else resources.getInteger(R.integer.quick_settings_infinite_grid_num_columns)
+            }
     val defaultColumns: Int =
         resources.getInteger(R.integer.quick_settings_infinite_grid_num_columns)
 }

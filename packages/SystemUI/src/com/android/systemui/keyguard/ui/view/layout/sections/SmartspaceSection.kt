@@ -160,6 +160,7 @@ constructor(
                 // double up with the custom clock face's own date.
                 setVisibility(sharedR.id.bc_smartspace_view, GONE)
                 setVisibility(sharedR.id.date_smartspace_view, GONE)
+                setVisibility(sharedR.id.date_smartspace_view_large, GONE)
             }
             constrainHeight(sharedR.id.date_smartspace_view, ConstraintSet.WRAP_CONTENT)
             constrainWidth(sharedR.id.date_smartspace_view, ConstraintSet.WRAP_CONTENT)

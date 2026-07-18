@@ -35,6 +35,7 @@ import com.android.systemui.res.R;
 import com.android.systemui.shade.ShadeDisplayAware;
 import com.android.systemui.shared.clocks.ClockRegistry;
 import com.android.systemui.shared.clocks.DefaultClockProvider;
+import com.android.systemui.shared.clocks.YozakuraClockProvider;
 import com.android.systemui.util.ThreadAssert;
 
 import dagger.Module;
@@ -75,6 +76,9 @@ public abstract class ClockRegistryModule {
                         com.android.systemui.shared.Flags.clockReactiveVariants(),
                         vibrator
                 ),
+                new YozakuraClockProvider(
+                        layoutInflater,
+                        resources),
                 context.getString(R.string.lockscreen_clock_id_fallback),
                 clockBuffers,
                 /* keepAllLoaded = */ false,

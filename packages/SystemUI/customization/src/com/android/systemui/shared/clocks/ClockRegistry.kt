@@ -93,6 +93,7 @@ open class ClockRegistry(
     val isEnabled: Boolean,
     val handleAllUsers: Boolean,
     defaultClockProvider: ClockProvider,
+    yozakuraClockProvider: ClockProvider,
     val fallbackClockId: ClockId = DEFAULT_CLOCK_ID,
     val clockBuffers: ClockMessageBuffers? = null,
     val keepAllLoaded: Boolean,
@@ -448,6 +449,13 @@ open class ClockRegistry(
         for (clock in defaultClockProvider.getClocks()) {
             availableClocks[clock.clockId] = ClockInfo(clock, defaultClockProvider, null)
             clock.replacementTarget?.let { replacementMap[clock.clockId] = it }
+        }
+
+        // YozakuraOS: register the ported custom clock faces so they appear in the
+        // standard clock picker and are managed natively by the clock system.
+        yozakuraClockProvider.initialize(clockBuffers)
+        for (clock in yozakuraClockProvider.getClocks()) {
+            availableClocks[clock.clockId] = ClockInfo(clock, yozakuraClockProvider, null)
         }
 
         // Something has gone terribly wrong if the default clock isn't present

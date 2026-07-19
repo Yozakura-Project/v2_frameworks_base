@@ -116,11 +116,11 @@ class YozakuraClockController(
             // inflateFace returns a bare View where the face layout is absent (e.g. the
             // wallpaper picker process); keep that empty fallback as-is.
             if (face.javaClass == View::class.java) return face
-            val container = FrameLayout(ctx)
+            val container = ScaledFaceContainer(ctx, SMALL_FACE_SCALE)
             container.addView(
                 face,
                 FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT,
                     FrameLayout.LayoutParams.WRAP_CONTENT,
                 ),
             )
@@ -173,6 +173,37 @@ class YozakuraClockController(
 
     override fun dump(pw: PrintWriter) {
         pw.println("YozakuraClockController($clockId -> $largeLayoutName)")
+    }
+
+    /**
+     * Wraps the face for the small-clock slot: measures the child at its full natural size
+     * (ignoring any compact height the small-clock frame requests) but reports the SCALED
+     * size, so the keyguard allocates a compact box and the bottom of the face (e.g. the
+     * date line) isn't clipped. The child itself is drawn small via scaleX/scaleY.
+     */
+    private class ScaledFaceContainer(context: Context, private val scale: Float) :
+        FrameLayout(context) {
+        init {
+            clipChildren = false
+            clipToPadding = false
+        }
+
+        override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+            val child = getChildAt(0)
+            if (child == null) {
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+                return
+            }
+            measureChild(
+                child,
+                widthMeasureSpec,
+                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
+            )
+            setMeasuredDimension(
+                (child.measuredWidth * scale).toInt(),
+                (child.measuredHeight * scale).toInt(),
+            )
+        }
     }
 
     private companion object {

@@ -16,8 +16,6 @@ import android.icu.util.TimeZone
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
-import android.graphics.Color
-import com.android.systemui.customization.R as customR
 import com.android.systemui.customization.clocks.DefaultClockFaceLayout
 import com.android.systemui.plugins.keyguard.data.model.AlarmData
 import com.android.systemui.plugins.keyguard.data.model.WeatherData
@@ -107,23 +105,30 @@ class YozakuraClockController(
     override val largeClock = YozakuraFaceController(inflateFace(largeLayoutName), true)
 
     /**
-     * The small-clock slot (shown when notifications/media occupy the lockscreen) must NOT
-     * render the whole face: inflating the large face here overlapped the large clock and
-     * produced the doubled, garbled result seen on cp46.
+     * The small-clock slot (shown when the double-line clock setting is off, or when
+     * notifications/media occupy the lockscreen) renders the SAME selected face, shrunk
+     * and anchored to the top-left so it sits compactly in the small-clock frame instead
+     * of overlapping the large clock (the doubled/garbled result seen on cp46).
      */
     private fun buildSmallClock(): View {
-        // Small slot = the stock small clock layout (customization lib, present in every
-        // process incl. the picker), like Google's fancy faces which show a simplified
-        // small variant. Wrapped so a failure here can never abort controller construction
-        // (which would silently drop the selected face back to the default clock).
         return try {
-            (layoutInflater.inflate(customR.layout.clock_default_small, parent, false)
-                    as AnimatableClockView)
-                .apply {
-                    setColors(Color.WHITE, settings?.seedColor ?: Color.WHITE)
-                    refreshFormat()
-                    refreshTime()
-                }
+            val face = inflateFace(largeLayoutName)
+            // inflateFace returns a bare View where the face layout is absent (e.g. the
+            // wallpaper picker process); keep that empty fallback as-is.
+            if (face.javaClass == View::class.java) return face
+            val container = FrameLayout(ctx)
+            container.addView(
+                face,
+                FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                ),
+            )
+            face.pivotX = 0f
+            face.pivotY = 0f
+            face.scaleX = SMALL_FACE_SCALE
+            face.scaleY = SMALL_FACE_SCALE
+            container
         } catch (t: Throwable) {
             View(ctx)
         }
@@ -168,5 +173,10 @@ class YozakuraClockController(
 
     override fun dump(pw: PrintWriter) {
         pw.println("YozakuraClockController($clockId -> $largeLayoutName)")
+    }
+
+    private companion object {
+        // Shrink factor for the face when shown in the small-clock slot (top-left).
+        private const val SMALL_FACE_SCALE = 0.45f
     }
 }

@@ -12,6 +12,7 @@ package com.android.systemui.shared.clocks
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Rect
+import android.icu.util.TimeZone
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
@@ -30,11 +31,11 @@ import com.android.systemui.plugins.keyguard.ui.clocks.ClockFaceController
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockFaceEvents
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockPositionAnimationArgs
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockSettings
+import com.android.systemui.plugins.keyguard.ui.clocks.ClockViewIds
 import com.android.systemui.plugins.keyguard.ui.clocks.ThemeConfig
 import com.android.systemui.plugins.keyguard.ui.clocks.TimeFormatKind
 import java.io.PrintWriter
 import java.util.Locale
-import android.icu.util.TimeZone
 
 class YozakuraClockController(
     private val ctx: Context,
@@ -66,7 +67,16 @@ class YozakuraClockController(
         }
 
     /** A face controller wrapping an arbitrary (TextClock-based) face layout. */
-    inner class YozakuraFaceController(override val view: View) : ClockFaceController {
+    inner class YozakuraFaceController(override val view: View, isLarge: Boolean) :
+        ClockFaceController {
+        init {
+            // The keyguard identifies the active clock face by these ids; without
+            // them DefaultClockFaceLayout won't place/show the face.
+            view.id =
+                if (isLarge) ClockViewIds.LOCKSCREEN_CLOCK_VIEW_LARGE
+                else ClockViewIds.LOCKSCREEN_CLOCK_VIEW_SMALL
+        }
+
         override val layout = DefaultClockFaceLayout(view)
         override val config = ClockFaceConfig()
         override var theme = ThemeConfig(true, settings?.seedColor)
@@ -90,11 +100,15 @@ class YozakuraClockController(
 
     private val parent = FrameLayout(ctx)
 
-    override val smallClock = YozakuraFaceController(inflateFace(largeLayoutName))
-    override val largeClock = YozakuraFaceController(inflateFace(largeLayoutName))
+    override val smallClock = YozakuraFaceController(inflateFace(largeLayoutName), false)
+    override val largeClock = YozakuraFaceController(inflateFace(largeLayoutName), true)
 
     private fun inflateFace(name: String): View {
         val id = resources.getIdentifier(name, "layout", ctx.packageName)
+        // The face layouts live in SystemUI's res-keyguard. In other hosts (e.g. the
+        // Wallpaper picker process) they are not present, so fall back to an empty view
+        // instead of crashing on inflate(0).
+        if (id == 0) return View(ctx)
         return layoutInflater.inflate(id, parent, false)
     }
 

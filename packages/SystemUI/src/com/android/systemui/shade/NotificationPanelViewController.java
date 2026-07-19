@@ -57,6 +57,8 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.Rect;
@@ -482,6 +484,8 @@ public final class NotificationPanelViewController implements
     private final NavigationBarController mNavigationBarController;
     private final int mDisplayId;
     private boolean mDoubleTapToSleepEnabled;
+    private boolean mYozakuraForceLargeClock;
+    private ContentObserver mYozakuraForceLargeClockObserver;
     private GestureDetector mDoubleTapGesture;
 
     private final KeyguardIndicationController mKeyguardIndicationController;
@@ -805,6 +809,15 @@ public final class NotificationPanelViewController implements
                         LineageSettings.System.DOUBLE_TAP_SLEEP_GESTURE,
                         mResources.getBoolean(org.lineageos.platform.internal.R.bool.
                                 config_dt2sGestureEnabledByDefault) ? 1 : 0) != 0;
+            }
+        };
+        mYozakuraForceLargeClockObserver = new ContentObserver(handler) {
+            @Override
+            public void onChange(boolean selfChange) {
+                mYozakuraForceLargeClock = Settings.Secure.getIntForUser(mContentResolver,
+                        "yozakura_force_large_clock", 0, UserHandle.USER_CURRENT) != 0;
+                // Re-evaluate the clock size so toggling applies live on the lockscreen.
+                updateClockAppearance();
             }
         };
         mConversationNotificationManager = conversationNotificationManager;
@@ -1222,7 +1235,7 @@ public final class NotificationPanelViewController implements
     }
 
     private ClockSize computeDesiredClockSizeForSingleShade() {
-        if (hasVisibleNotifications()) {
+        if (hasVisibleNotifications() && !mYozakuraForceLargeClock) {
             return ClockSize.SMALL;
         }
         return ClockSize.LARGE;
@@ -3718,6 +3731,10 @@ public final class NotificationPanelViewController implements
                     LineageSettings.System.DOUBLE_TAP_SLEEP_GESTURE), false,
                     mDoubleTapToSleepObserver);
             mDoubleTapToSleepObserver.onChange(true);
+            mContentResolver.registerContentObserver(Settings.Secure.getUriFor(
+                    "yozakura_force_large_clock"), false,
+                    mYozakuraForceLargeClockObserver, UserHandle.USER_ALL);
+            mYozakuraForceLargeClockObserver.onChange(true);
             // Theme might have changed between inflating this view and attaching it to the
             // window, so
             // force a call to onThemeChanged
@@ -3729,6 +3746,7 @@ public final class NotificationPanelViewController implements
         @Override
         public void onViewDetachedFromWindow(View v) {
             mContentResolver.unregisterContentObserver(mDoubleTapToSleepObserver);
+            mContentResolver.unregisterContentObserver(mYozakuraForceLargeClockObserver);
             mFragmentService.getFragmentHostManager(mView)
                     .removeTagListener(QS.TAG, mQsController.getQsFragmentListener());
             mStatusBarStateController.removeCallback(mStatusBarStateListener);

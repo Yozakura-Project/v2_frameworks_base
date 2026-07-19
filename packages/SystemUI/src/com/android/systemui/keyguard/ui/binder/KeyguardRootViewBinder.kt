@@ -26,6 +26,7 @@ import android.view.HapticFeedbackConstants
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.View
+import android.provider.Settings
 import android.view.View.GONE
 import android.view.View.INVISIBLE
 import android.view.View.OnLayoutChangeListener
@@ -295,7 +296,18 @@ object KeyguardRootViewBinder {
                     launch {
                         viewModel.burnInLayerVisibility.collect { visibility ->
                             childViews[burnInLayerId]?.visibility = visibility
-                            childViews[sliceViewId]?.visibility = visibility
+                            // YozakuraOS: this is the authoritative writer of the legacy
+                            // keyguard slice (top-left date) visibility. When a custom
+                            // ClockRegistry Yozakura face is active, keep the slice hidden so
+                            // it doesn't duplicate the face's own date.
+                            val hideSlice =
+                                (Settings.Secure.getString(
+                                        view.context.contentResolver,
+                                        "lock_screen_custom_clock_face",
+                                    ) ?: "")
+                                    .contains("YOZAKURA_")
+                            childViews[sliceViewId]?.visibility =
+                                if (hideSlice) GONE else visibility
                         }
                     }
 

@@ -72,6 +72,21 @@ object KeyguardSmartspaceViewBinder {
                         }
                 }
 
+                launch("$TAG#clockViewModel.currentClock") {
+                    // YozakuraOS: re-apply smartspace constraints when the clock changes so
+                    // the standard date hides/shows for ClockRegistry-selected Yozakura faces
+                    // (at boot the first constraint pass runs before the clock has loaded).
+                    clockViewModel.currentClock.collect {
+                        blueprintInteractor.refreshBlueprint(
+                            Config(
+                                Type.SmartspaceVisibility,
+                                checkPriority = false,
+                                terminatePrevious = false,
+                            )
+                        )
+                    }
+                }
+
                 launch("$TAG#smartspaceViewModel.bcSmartspaceVisibility") {
                     smartspaceViewModel.bcSmartspaceVisibility.collect {
                         updateBCSmartspaceInBurnInLayer(keyguardRootView, clockViewModel)

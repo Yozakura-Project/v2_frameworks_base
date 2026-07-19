@@ -153,7 +153,13 @@ constructor(
                 "lock_screen_custom_clock_style",
                 0,
                 android.os.UserHandle.USER_CURRENT,
-            ) != 0
+            ) != 0 ||
+                // Also hide for ClockRegistry-based Yozakura faces (selection lives in
+                // lock_screen_custom_clock_face, not the legacy overlay key above).
+                keyguardClockViewModel.currentClock.value
+                    ?.config
+                    ?.id
+                    ?.startsWith("YOZAKURA_") == true
         constraintSet.apply {
             if (isCustomClockEnabled) {
                 // YozakuraOS: hide the default smartspace/date so it doesn't

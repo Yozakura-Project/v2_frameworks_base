@@ -15,7 +15,9 @@ import android.graphics.Rect
 import android.icu.util.TimeZone
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.TextClock
 import com.android.systemui.customization.clocks.DefaultClockFaceLayout
 import com.android.systemui.plugins.keyguard.data.model.AlarmData
 import com.android.systemui.plugins.keyguard.data.model.WeatherData
@@ -85,6 +87,7 @@ class YozakuraClockController(
             object : ClockFaceEvents {
                 override fun onTimeTick() {
                     (view as? AnimatableClockView)?.refreshTime()
+                    refreshTextClocks(view)
                 }
 
                 override fun onThemeChanged(theme: ThemeConfig) {
@@ -131,6 +134,22 @@ class YozakuraClockController(
             container
         } catch (t: Throwable) {
             View(ctx)
+        }
+    }
+
+    /**
+     * Force every TextClock in a face to recompute its text now. A freshly inflated
+     * TextClock can otherwise stay blank until its own ticker fires, which races the
+     * initial layout and leaves several faces showing only the date. Re-applying the
+     * format strings triggers TextClock.onTimeChanged() immediately.
+     */
+    private fun refreshTextClocks(v: View) {
+        when (v) {
+            is TextClock -> {
+                v.format12Hour = v.format12Hour
+                v.format24Hour = v.format24Hour
+            }
+            is ViewGroup -> for (i in 0 until v.childCount) refreshTextClocks(v.getChildAt(i))
         }
     }
 

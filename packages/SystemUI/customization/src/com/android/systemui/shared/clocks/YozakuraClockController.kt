@@ -16,6 +16,11 @@ import android.icu.util.TimeZone
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
+import android.graphics.Color
+import android.util.TypedValue
+import android.view.Gravity
+import android.widget.TextClock
+import com.android.systemui.customization.clocks.R as clocksR
 import com.android.systemui.customization.clocks.DefaultClockFaceLayout
 import com.android.systemui.plugins.keyguard.data.model.AlarmData
 import com.android.systemui.plugins.keyguard.data.model.WeatherData
@@ -100,8 +105,28 @@ class YozakuraClockController(
 
     private val parent = FrameLayout(ctx)
 
-    override val smallClock = YozakuraFaceController(inflateFace(largeLayoutName), false)
+    override val smallClock = YozakuraFaceController(buildSmallClock(), false)
     override val largeClock = YozakuraFaceController(inflateFace(largeLayoutName), true)
+
+    /**
+     * The small-clock slot (e.g. shown alongside media) must NOT render the whole face:
+     * inflating the large face here overlapped the large clock and produced the doubled,
+     * garbled result seen on cp46. Use a minimal, self-updating, time-only TextClock.
+     * Unlike the res-keyguard face layouts it exists in every host process (incl. picker).
+     */
+    private fun buildSmallClock(): View {
+        return TextClock(ctx).apply {
+            format12Hour = "h:mm"
+            format24Hour = "HH:mm"
+            isSingleLine = true
+            gravity = Gravity.START
+            setTextColor(Color.WHITE)
+            setTextSize(
+                TypedValue.COMPLEX_UNIT_PX,
+                resources.getDimension(clocksR.dimen.small_clock_text_size),
+            )
+        }
+    }
 
     private fun inflateFace(name: String): View {
         val id = resources.getIdentifier(name, "layout", ctx.packageName)

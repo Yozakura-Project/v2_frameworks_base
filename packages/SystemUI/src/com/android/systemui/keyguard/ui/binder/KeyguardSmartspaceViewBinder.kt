@@ -72,18 +72,26 @@ object KeyguardSmartspaceViewBinder {
                         }
                 }
 
-                launch("$TAG#clockViewModel.currentClock") {
-                    // YozakuraOS: re-apply smartspace constraints when the clock changes so
-                    // the standard date hides/shows for ClockRegistry-selected Yozakura faces
-                    // (at boot the first constraint pass runs before the clock has loaded).
-                    clockViewModel.currentClock.collect {
-                        blueprintInteractor.refreshBlueprint(
-                            Config(
-                                Type.SmartspaceVisibility,
-                                checkPriority = false,
-                                terminatePrevious = false,
+                launch("$TAG#clockViewModel.currentClockYozakura") {
+                    // YozakuraOS: hide the standard smartspace date directly when a
+                    // ClockRegistry Yozakura face is active. Sets view visibility without a
+                    // blueprint refresh: refreshing here races the clock view swap and can
+                    // break face application (cp51 regression).
+                    clockViewModel.currentClock.collect { clock ->
+                        val hide = clock?.config?.id?.startsWith("YOZAKURA_") == true
+                        listOf(
+                                sharedR.id.date_smartspace_view,
+                                sharedR.id.date_smartspace_view_large,
                             )
-                        )
+                            .forEach { id ->
+                                keyguardRootView.findViewById<View>(id)?.visibility =
+                                    if (hide) View.GONE else View.VISIBLE
+                            }
+                        keyguardRootView
+                            .findViewById<View>(sharedR.id.bc_smartspace_view)
+                            ?.visibility =
+                            if (hide) View.GONE
+                            else smartspaceViewModel.bcSmartspaceVisibility.value
                     }
                 }
 

@@ -17,10 +17,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
 import android.graphics.Color
-import android.util.TypedValue
-import android.view.Gravity
-import android.widget.TextClock
-import com.android.systemui.customization.clocks.R as clocksR
+import com.android.systemui.customization.R as customR
 import com.android.systemui.customization.clocks.DefaultClockFaceLayout
 import com.android.systemui.plugins.keyguard.data.model.AlarmData
 import com.android.systemui.plugins.keyguard.data.model.WeatherData
@@ -88,8 +85,9 @@ class YozakuraClockController(
         override val animations: ClockAnimations = noAnimations
         override val events =
             object : ClockFaceEvents {
-                // TextClock views update themselves, so ticking is a no-op.
-                override fun onTimeTick() {}
+                override fun onTimeTick() {
+                    (view as? AnimatableClockView)?.refreshTime()
+                }
 
                 override fun onThemeChanged(theme: ThemeConfig) {
                     this@YozakuraFaceController.theme = theme
@@ -109,22 +107,25 @@ class YozakuraClockController(
     override val largeClock = YozakuraFaceController(inflateFace(largeLayoutName), true)
 
     /**
-     * The small-clock slot (e.g. shown alongside media) must NOT render the whole face:
-     * inflating the large face here overlapped the large clock and produced the doubled,
-     * garbled result seen on cp46. Use a minimal, self-updating, time-only TextClock.
-     * Unlike the res-keyguard face layouts it exists in every host process (incl. picker).
+     * The small-clock slot (shown when notifications/media occupy the lockscreen) must NOT
+     * render the whole face: inflating the large face here overlapped the large clock and
+     * produced the doubled, garbled result seen on cp46.
      */
     private fun buildSmallClock(): View {
-        return TextClock(ctx).apply {
-            format12Hour = "h:mm"
-            format24Hour = "HH:mm"
-            isSingleLine = true
-            gravity = Gravity.START
-            setTextColor(Color.WHITE)
-            setTextSize(
-                TypedValue.COMPLEX_UNIT_PX,
-                resources.getDimension(clocksR.dimen.small_clock_text_size),
-            )
+        // Small slot = the stock small clock layout (customization lib, present in every
+        // process incl. the picker), like Google's fancy faces which show a simplified
+        // small variant. Wrapped so a failure here can never abort controller construction
+        // (which would silently drop the selected face back to the default clock).
+        return try {
+            (layoutInflater.inflate(customR.layout.clock_default_small, parent, false)
+                    as AnimatableClockView)
+                .apply {
+                    setColors(Color.WHITE, settings?.seedColor ?: Color.WHITE)
+                    refreshFormat()
+                    refreshTime()
+                }
+        } catch (t: Throwable) {
+            View(ctx)
         }
     }
 

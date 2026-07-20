@@ -235,8 +235,20 @@ constructor(
                     TOP,
                 )
             }
+            val yozakuraFace =
+                (Settings.Secure.getString(
+                        context.contentResolver,
+                        "lock_screen_custom_clock_face",
+                    ) ?: "")
+                    .contains("YOZAKURA_")
             val largeClockTopMargin =
-                if (com.android.systemui.shared.Flags.clockReactiveSmartspaceLayout()) {
+                if (yozakuraFace) {
+                    // YozakuraOS: these faces hide the smartspace/date (cp56) and are meant to
+                    // sit near the top like the original overlay picker, so drop the smartspace
+                    // offsets. This is a layout-level move, so notifications constrained below
+                    // the clock follow it down instead of overlapping.
+                    keyguardClockViewModel.getLargeClockTopMargin()
+                } else if (com.android.systemui.shared.Flags.clockReactiveSmartspaceLayout()) {
                     keyguardClockViewModel.getLargeClockTopMargin() +
                         context.resources.getDimensionPixelSize(
                             clocksR.dimen.enhanced_smartspace_height

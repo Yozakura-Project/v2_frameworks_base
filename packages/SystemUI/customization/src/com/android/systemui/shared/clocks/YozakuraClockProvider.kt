@@ -30,6 +30,7 @@ private data class YozakuraFace(
     val name: String,
     val layout: String,
     val short: String,
+    val center: Boolean,
 )
 
 class YozakuraClockProvider(
@@ -56,6 +57,15 @@ class YozakuraClockProvider(
             "taden", "tall", "taller2", "taller3", "widgets", "word",
         )
 
+    // Faces the original overlay picker centered (others are start-aligned).
+    private val centerFaces =
+        setOf(
+            "center", "simple", "ide", "moto", "stylish", "stylish2", "stylish3",
+            "stylish4", "stylish5", "stylish6", "stylish7", "stylish8", "stylish9",
+            "stylish10", "word", "life", "a9", "nos1", "nos2", "num", "accent",
+            "analog", "block", "bubble", "ios",
+        )
+
     private val faces: List<YozakuraFace> =
         faceNames.map { n ->
             YozakuraFace(
@@ -63,6 +73,7 @@ class YozakuraClockProvider(
                 name = "Yozakura " + n.replaceFirstChar { it.uppercase() },
                 layout = "keyguard_clock_$n",
                 short = n,
+                center = n in centerFaces,
             )
         }
 
@@ -87,6 +98,7 @@ class YozakuraClockProvider(
                 face.id,
                 face.name,
                 face.layout,
+                face.center,
             )
         } catch (t: Throwable) {
             null

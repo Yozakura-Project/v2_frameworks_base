@@ -14,9 +14,11 @@ import android.content.res.Resources
 import android.graphics.Rect
 import android.icu.util.TimeZone
 import android.view.LayoutInflater
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextClock
 import com.android.systemui.customization.clocks.DefaultClockFaceLayout
 import com.android.systemui.plugins.keyguard.data.model.AlarmData
@@ -47,6 +49,7 @@ class YozakuraClockController(
     private val clockId: String,
     private val displayName: String,
     private val largeLayoutName: String,
+    private val isCenter: Boolean,
 ) : ClockController {
 
     private val noAnimations =
@@ -105,7 +108,7 @@ class YozakuraClockController(
     private val parent = FrameLayout(ctx)
 
     override val smallClock = YozakuraFaceController(buildSmallClock(), false)
-    override val largeClock = YozakuraFaceController(inflateFace(largeLayoutName), true)
+    override val largeClock = YozakuraFaceController(buildLargeFace(), true)
 
     /**
      * The small-clock slot (shown when the double-line clock setting is off, or when
@@ -150,6 +153,43 @@ class YozakuraClockController(
                 v.format24Hour = v.format24Hour
             }
             is ViewGroup -> for (i in 0 until v.childCount) refreshTextClocks(v.getChildAt(i))
+        }
+    }
+
+    private fun buildLargeFace(): View {
+        val face = inflateFace(largeLayoutName)
+        applyFaceStyle(face)
+        return face
+    }
+
+    /**
+     * Match the original Yozakura overlay picker so ClockRegistry faces render in the same
+     * place: center the center-clocks (others start-aligned), and disable clipping up the
+     * view hierarchy once attached so tall faces aren't cropped (a lot of faces looked
+     * "broken" only because they were being clipped/left-aligned here).
+     */
+    private fun applyFaceStyle(face: View) {
+        (face as? LinearLayout)?.gravity = if (isCenter) Gravity.CENTER else Gravity.START
+        face.addOnAttachStateChangeListener(
+            object : View.OnAttachStateChangeListener {
+                override fun onViewAttachedToWindow(v: View) {
+                    disableClippingUpTree(v)
+                    refreshTextClocks(v)
+                }
+
+                override fun onViewDetachedFromWindow(v: View) {}
+            }
+        )
+    }
+
+    private fun disableClippingUpTree(view: View) {
+        var current: View? = view
+        var depth = 0
+        while (current is ViewGroup && depth < 12) {
+            current.clipChildren = false
+            current.clipToPadding = false
+            current = current.parent as? View
+            depth++
         }
     }
 

@@ -148,10 +148,9 @@ class YozakuraClockController(
      */
     private fun refreshTextClocks(v: View) {
         when (v) {
-            is TextClock -> {
-                v.format12Hour = v.format12Hour
-                v.format24Hour = v.format24Hour
-            }
+            // refreshTime() recomputes the text AND invalidates the view, so a TextClock
+            // that was laid out but not yet painted actually shows up.
+            is TextClock -> v.refreshTime()
             is ViewGroup -> for (i in 0 until v.childCount) refreshTextClocks(v.getChildAt(i))
         }
     }
@@ -174,7 +173,13 @@ class YozakuraClockController(
             object : View.OnAttachStateChangeListener {
                 override fun onViewAttachedToWindow(v: View) {
                     disableClippingUpTree(v)
+                    // A face's TextClocks can be laid out but not painted on the first frame
+                    // after a switch (uiautomator sees the time, the screen stays blank until
+                    // the next minute tick). Nudge them just after attach so it paints now.
                     refreshTextClocks(v)
+                    v.post { refreshTextClocks(v) }
+                    v.postDelayed({ refreshTextClocks(v) }, 300)
+                    v.postDelayed({ refreshTextClocks(v) }, 800)
                 }
 
                 override fun onViewDetachedFromWindow(v: View) {}

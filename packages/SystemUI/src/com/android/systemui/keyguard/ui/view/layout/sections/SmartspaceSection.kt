@@ -332,13 +332,28 @@ constructor(
                 }
             }
 
+            // YozakuraOS: for custom faces the smartspace/date are hidden, so include the
+            // large clock in the bottom barrier -> notifications sit below the clock (like
+            // the original overlay) instead of above it.
+            val yozakuraFace =
+                (android.provider.Settings.Secure.getString(
+                        context.contentResolver,
+                        "lock_screen_custom_clock_face",
+                    ) ?: "")
+                    .contains("YOZAKURA_")
+            val clockBarrierExtra =
+                if (yozakuraFace) intArrayOf(ClockViewIds.LOCKSCREEN_CLOCK_VIEW_LARGE)
+                else IntArray(0)
             if (clockReactiveSmartspaceLayout()) {
                 if (dateWeatherBelowSmallClock || !dateWeatherBelowLargeClock) {
                     createBarrier(
                         R.id.smart_space_barrier_bottom,
                         Barrier.BOTTOM,
                         0,
-                        *intArrayOf(sharedR.id.bc_smartspace_view, sharedR.id.date_smartspace_view),
+                        *(intArrayOf(
+                            sharedR.id.bc_smartspace_view,
+                            sharedR.id.date_smartspace_view,
+                        ) + clockBarrierExtra),
                     )
                     createBarrier(
                         R.id.smart_space_barrier_top,
@@ -351,7 +366,7 @@ constructor(
                         R.id.smart_space_barrier_bottom,
                         Barrier.BOTTOM,
                         0,
-                        sharedR.id.bc_smartspace_view,
+                        *(intArrayOf(sharedR.id.bc_smartspace_view) + clockBarrierExtra),
                     )
                     createBarrier(
                         R.id.smart_space_barrier_top,
@@ -365,7 +380,10 @@ constructor(
                     R.id.smart_space_barrier_bottom,
                     Barrier.BOTTOM,
                     0,
-                    *intArrayOf(sharedR.id.bc_smartspace_view, sharedR.id.date_smartspace_view),
+                    *(intArrayOf(
+                        sharedR.id.bc_smartspace_view,
+                        sharedR.id.date_smartspace_view,
+                    ) + clockBarrierExtra),
                 )
                 createBarrier(
                     R.id.smart_space_barrier_top,

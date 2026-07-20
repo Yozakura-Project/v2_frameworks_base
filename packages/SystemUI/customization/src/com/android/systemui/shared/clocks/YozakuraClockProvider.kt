@@ -43,18 +43,17 @@ class YozakuraClockProvider(
     // Base names map 1:1 to keyguard_clock_<name>.xml; ids are stable across upgrades so a
     // saved selection keeps working. A face whose layout fails to inflate falls back to the
     // default clock (see createClock) rather than crashing.
+    // Only faces that render correctly in the AOSP large-clock slot. The excluded ones
+    // (ios/taller/cos*/miui/etc.) rely on the old overlay's own container to paint their
+    // oversized time and stay blank here; they can be re-added if that path is ported.
     private val faceNames =
         listOf(
-            "taller", "oos", "ios", "center", "stylish",
-            "a9", "accent", "analog", "big1", "big2", "big3", "big4", "block", "bubble",
-            "cos1", "cos2", "delirium", "deliriumdual", "encode", "galada", "gateway",
-            "gobold", "gobold2", "ide", "ios2", "ios3", "ios4", "ios5", "ios6", "ios7",
-            "ios8", "ios9", "ios10", "ios11", "ios12", "ios13", "ios14", "ios15", "ios16",
-            "ios17", "ios18", "ios19", "label", "life", "miui", "miui2", "modak", "mont",
-            "moto", "nos1", "nos2", "nos3", "num", "oos2", "pixel", "rothefigh", "samurai",
-            "simple", "skewrom", "skewrom2", "style", "stylish2", "stylish3", "stylish4",
-            "stylish5", "stylish6", "stylish7", "stylish8", "stylish9", "stylish10", "sweet",
-            "taden", "tall", "taller2", "taller3", "widgets", "word",
+            "oos", "center", "stylish", "a9", "big1", "big2", "big3", "big4", "block",
+            "bubble", "deliriumdual", "gateway", "gobold", "gobold2", "ide", "ios7", "ios8",
+            "ios9", "ios18", "life", "miui2", "moto", "nos1", "nos2", "num", "oos2",
+            "skewrom", "stylish2", "stylish3", "stylish4", "stylish5", "stylish6",
+            "stylish7", "stylish8", "stylish9", "stylish10", "tall", "taller2", "taller3",
+            "word",
         )
 
     // Faces the original overlay picker centered (others are start-aligned).

@@ -134,6 +134,9 @@ constructor(
             if (isCustomClockEnabled) {
                 setAlpha(ClockViewIds.LOCKSCREEN_CLOCK_VIEW_SMALL, 0F)
                 setAlpha(ClockViewIds.LOCKSCREEN_CLOCK_VIEW_LARGE, 0F)
+                // YozakuraOS: also hide the legacy keyguard slice (top-left date) so it
+                // doesn't overlap the custom clock, which draws its own date.
+                setVisibility(R.id.keyguard_slice_view, GONE)
             }
 
             if (!keyguardClockViewModel.isLargeClockVisible.value) {

@@ -173,6 +173,7 @@ class YozakuraClockController(
             object : View.OnAttachStateChangeListener {
                 override fun onViewAttachedToWindow(v: View) {
                     disableClippingUpTree(v)
+                    anchorToTop(v)
                     // A face's TextClocks can be laid out but not painted on the first frame
                     // after a switch (uiautomator sees the time, the screen stays blank until
                     // the next minute tick). Nudge them just after attach so it paints now.
@@ -196,6 +197,36 @@ class YozakuraClockController(
             current = current.parent as? View
             depth++
         }
+    }
+
+    /**
+     * The original Yozakura overlay pinned the clock near the top of the screen
+     * (status_bar_height * 1.25), whereas the AOSP large-clock slot places it lower. Pin
+     * the face to that same top position via translationY so ClockRegistry faces show
+     * where the overlay picker used to show them. Re-applied on layout so it survives
+     * re-positioning (e.g. notifications).
+     */
+    private fun anchorToTop(face: View) {
+        val target = topAnchorPx()
+        val loc = IntArray(2)
+        val pin = {
+            face.getLocationOnScreen(loc)
+            val untranslatedTop = loc[1] - face.translationY
+            val desired = target - untranslatedTop
+            if (kotlin.math.abs(face.translationY - desired) > 1f) {
+                face.translationY = desired
+            }
+        }
+        face.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> pin() }
+        face.post { pin() }
+    }
+
+    private fun topAnchorPx(): Float {
+        val id = resources.getIdentifier("status_bar_height", "dimen", "android")
+        val sb =
+            if (id != 0) resources.getDimensionPixelSize(id)
+            else (28f * resources.displayMetrics.density).toInt()
+        return sb * 1.25f
     }
 
     private fun inflateFace(name: String): View {

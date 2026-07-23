@@ -10650,6 +10650,33 @@ public final class Settings {
         public static final String DOZE_ALWAYS_ON = "doze_always_on";
 
         /**
+         * Pulse lockscreen music visualizer
+         * @hide
+         */
+        public static final String LOCKSCREEN_PULSE_ENABLED = "lockscreen_pulse_enabled";
+
+        /**
+         * Pulse lockscreen music visualizer on ambient display
+         * @hide
+         */
+        public static final String AMBIENT_PULSE_ENABLED = "ambient_pulse_enabled";
+
+        /** @hide */
+        public static final String PULSE_BAR_COUNT = "pulse_bar_count";
+
+        /** @hide */
+        public static final String PULSE_ROUNDED_BARS = "pulse_rounded_bars";
+
+        /** @hide */
+        public static final String PULSE_COLOR = "pulse_color";
+
+        /** @hide */
+        public static final String PULSE_RENDERER = "pulse_renderer";
+
+        /** @hide */
+        public static final String PULSE_BASS_HAPTICS = "pulse_bass_haptics";
+
+        /**
          * Indicates whether ambient wallpaper is visible with AOD.
          * <p>
          * Type: int (0 for false, 1 for true)

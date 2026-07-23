@@ -5389,6 +5389,30 @@ public final class Settings {
         public static final String SCREEN_OFF_TIMEOUT = "screen_off_timeout";
 
         /**
+         * Whether edge light is enabled
+         * @hide
+         */
+        public static final String EDGE_LIGHT_ENABLED = "edge_light_enabled";
+
+        /** @hide */
+        public static final String EDGE_LIGHT_COLOR_MODE = "edge_light_color_mode";
+
+        /** @hide */
+        public static final String EDGE_LIGHT_CUSTOM_COLOR = "edge_light_custom_color";
+
+        /** @hide */
+        public static final String EDGE_LIGHT_PULSE_COUNT = "edge_light_pulse_count";
+
+        /** @hide */
+        public static final String EDGE_LIGHT_STROKE_WIDTH = "edge_light_stroke_width";
+
+        /** @hide */
+        public static final String EDGE_LIGHT_STYLE = "edge_light_style";
+
+        /** @hide */
+        public static final String EDGE_LIGHT_ANIMATION_EFFECT = "edge_light_animation_effect";
+
+        /**
          * The screen backlight brightness between 1 (minimum) and 255 (maximum).
          *
          * Use {@link android.view.WindowManager.LayoutParams#screenBrightness} to set the screen

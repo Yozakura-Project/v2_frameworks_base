@@ -83,6 +83,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 import com.android.systemui.pulse.PulseViewController;
+import com.android.systemui.edgelight.EdgeLightViewController;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
@@ -424,6 +425,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     private final Lazy<NotificationShadeWindowViewController>
             mNotificationShadeWindowViewControllerLazy;
     private final PulseViewController mPulseViewController;
+    private final EdgeLightViewController mEdgeLightViewController;
     private final DozeParameters mDozeParameters;
     private final Lazy<BiometricUnlockController> mBiometricUnlockControllerLazy;
     private final PluginManager mPluginManager;
@@ -669,6 +671,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             NotificationShadeWindowController notificationShadeWindowController,
             Lazy<NotificationShadeWindowViewController> notificationShadeWindowViewControllerLazy,
             PulseViewController pulseViewController,
+            EdgeLightViewController edgeLightViewController,
             TopUiController topUiController,
             NotificationStackScrollLayoutController notificationStackScrollLayoutController,
             // Lazys due to b/298099682.
@@ -779,6 +782,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mTopUiController = topUiController;
         mNotificationShadeWindowViewControllerLazy = notificationShadeWindowViewControllerLazy;
         mPulseViewController = pulseViewController;
+        mEdgeLightViewController = edgeLightViewController;
         mStackScrollerController = notificationStackScrollLayoutController;
         mStackScroller = mStackScrollerController.getView();
         mNotifListContainer = mStackScrollerController.getNotificationListContainer();
@@ -1297,6 +1301,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         }
 
         attachPulseOverlay();
+        attachEdgeLightOverlay();
 
         mLightRevealScrim.setScrimOpaqueChangedListener((opaque) -> {
             Runnable updateOpaqueness = () -> {
@@ -3334,14 +3339,41 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             int scrimIndex = Math.max(root.indexOfChild(scrimInFront) - 3, 0);
             root.addView(container, scrimIndex);
         }
-        detachPulseFromParent(mPulseViewController.getPulseView());
+        detachFromParent(mPulseViewController.getPulseView());
         container.addView(mPulseViewController.getPulseView(),
                 new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
-    private static void detachPulseFromParent(View v) {
+    /**
+     * YozakuraOS cp91: attach the EdgeLight view into the same shared overlay
+     * container used by Pulse. EdgeLight lights up the screen edges on new
+     * notifications.
+     */
+    private void attachEdgeLightOverlay() {
+        if (mEdgeLightViewController == null) return;
+        ViewGroup root = (ViewGroup) getNotificationShadeWindowView();
+        if (root == null) return;
+        FrameLayout container = root.findViewById(R.id.custom_overlay_container);
+        if (container == null) {
+            container = new FrameLayout(mContext);
+            container.setId(R.id.custom_overlay_container);
+            container.setLayoutParams(new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+            View scrimInFront = root.findViewById(R.id.scrim_in_front);
+            int scrimIndex = Math.max(root.indexOfChild(scrimInFront) - 3, 0);
+            root.addView(container, scrimIndex);
+        }
+        detachFromParent(mEdgeLightViewController.getEdgeLightView());
+        container.addView(mEdgeLightViewController.getEdgeLightView(),
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+    }
+
+    private static void detachFromParent(View v) {
         if (v == null) return;
         final ViewParent p = v.getParent();
         if (p instanceof ViewGroup) {

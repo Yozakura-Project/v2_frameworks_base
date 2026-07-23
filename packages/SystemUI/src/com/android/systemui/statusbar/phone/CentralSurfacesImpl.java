@@ -79,6 +79,10 @@ import android.view.IWindowManager;
 import android.view.MotionEvent;
 import android.view.ThreadedRenderer;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.FrameLayout;
+import com.android.systemui.pulse.PulseViewController;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
@@ -419,6 +423,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
     private final ConfigurationController mConfigurationController;
     private final Lazy<NotificationShadeWindowViewController>
             mNotificationShadeWindowViewControllerLazy;
+    private final PulseViewController mPulseViewController;
     private final DozeParameters mDozeParameters;
     private final Lazy<BiometricUnlockController> mBiometricUnlockControllerLazy;
     private final PluginManager mPluginManager;
@@ -663,6 +668,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             ConfigurationController configurationController,
             NotificationShadeWindowController notificationShadeWindowController,
             Lazy<NotificationShadeWindowViewController> notificationShadeWindowViewControllerLazy,
+            PulseViewController pulseViewController,
             TopUiController topUiController,
             NotificationStackScrollLayoutController notificationStackScrollLayoutController,
             // Lazys due to b/298099682.
@@ -772,6 +778,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mNotificationShadeWindowController = notificationShadeWindowController;
         mTopUiController = topUiController;
         mNotificationShadeWindowViewControllerLazy = notificationShadeWindowViewControllerLazy;
+        mPulseViewController = pulseViewController;
         mStackScrollerController = notificationStackScrollLayoutController;
         mStackScroller = mStackScrollerController.getView();
         mNotifListContainer = mStackScrollerController.getNotificationListContainer();
@@ -1288,6 +1295,8 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             });
             mScrimController.attachViews(scrimBehind, notificationsScrim, scrimInFront);
         }
+
+        attachPulseOverlay();
 
         mLightRevealScrim.setScrimOpaqueChangedListener((opaque) -> {
             Runnable updateOpaqueness = () -> {
@@ -3304,4 +3313,40 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             ExpandableNotificationRow associatedView) {
         return mNotificationAnimationProvider.getAnimatorController(associatedView);
     }
+    /**
+     * YozakuraOS cp89: attach the Pulse music visualizer view into a full-screen
+     * overlay container inside the notification shade window, mirroring the
+     * upstream (crDroid/Infinity) placement just below the front scrim. Only the
+     * Pulse view is handled here; other Infinity overlays are not ported.
+     */
+    private void attachPulseOverlay() {
+        if (mPulseViewController == null) return;
+        ViewGroup root = (ViewGroup) getNotificationShadeWindowView();
+        if (root == null) return;
+        FrameLayout container = root.findViewById(R.id.custom_overlay_container);
+        if (container == null) {
+            container = new FrameLayout(mContext);
+            container.setId(R.id.custom_overlay_container);
+            container.setLayoutParams(new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+            View scrimInFront = root.findViewById(R.id.scrim_in_front);
+            int scrimIndex = Math.max(root.indexOfChild(scrimInFront) - 3, 0);
+            root.addView(container, scrimIndex);
+        }
+        detachPulseFromParent(mPulseViewController.getPulseView());
+        container.addView(mPulseViewController.getPulseView(),
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+    }
+
+    private static void detachPulseFromParent(View v) {
+        if (v == null) return;
+        final ViewParent p = v.getParent();
+        if (p instanceof ViewGroup) {
+            ((ViewGroup) p).removeView(v);
+        }
+    }
 }
+

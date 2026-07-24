@@ -84,6 +84,7 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import com.android.systemui.pulse.PulseViewController;
 import com.android.systemui.edgelight.EdgeLightViewController;
+import com.android.systemui.charging.ChargingAnimationViewController;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
@@ -426,6 +427,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             mNotificationShadeWindowViewControllerLazy;
     private final PulseViewController mPulseViewController;
     private final EdgeLightViewController mEdgeLightViewController;
+    private final ChargingAnimationViewController mChargingAnimationViewController;
     private final DozeParameters mDozeParameters;
     private final Lazy<BiometricUnlockController> mBiometricUnlockControllerLazy;
     private final PluginManager mPluginManager;
@@ -672,6 +674,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             Lazy<NotificationShadeWindowViewController> notificationShadeWindowViewControllerLazy,
             PulseViewController pulseViewController,
             EdgeLightViewController edgeLightViewController,
+            ChargingAnimationViewController chargingAnimationViewController,
             TopUiController topUiController,
             NotificationStackScrollLayoutController notificationStackScrollLayoutController,
             // Lazys due to b/298099682.
@@ -783,6 +786,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mNotificationShadeWindowViewControllerLazy = notificationShadeWindowViewControllerLazy;
         mPulseViewController = pulseViewController;
         mEdgeLightViewController = edgeLightViewController;
+        mChargingAnimationViewController = chargingAnimationViewController;
         mStackScrollerController = notificationStackScrollLayoutController;
         mStackScroller = mStackScrollerController.getView();
         mNotifListContainer = mStackScrollerController.getNotificationListContainer();
@@ -1302,6 +1306,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
 
         attachPulseOverlay();
         attachEdgeLightOverlay();
+        attachChargingAnimationOverlay();
 
         mLightRevealScrim.setScrimOpaqueChangedListener((opaque) -> {
             Runnable updateOpaqueness = () -> {
@@ -3368,6 +3373,33 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         }
         detachFromParent(mEdgeLightViewController.getEdgeLightView());
         container.addView(mEdgeLightViewController.getEdgeLightView(),
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+    }
+
+    /**
+     * YozakuraOS cp93: attach the ChargingAnimation view into the same shared
+     * overlay container used by Pulse/EdgeLight. Shows a charging circle
+     * animation on the lockscreen/AOD while charging.
+     */
+    private void attachChargingAnimationOverlay() {
+        if (mChargingAnimationViewController == null) return;
+        ViewGroup root = (ViewGroup) getNotificationShadeWindowView();
+        if (root == null) return;
+        FrameLayout container = root.findViewById(R.id.custom_overlay_container);
+        if (container == null) {
+            container = new FrameLayout(mContext);
+            container.setId(R.id.custom_overlay_container);
+            container.setLayoutParams(new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+            View scrimInFront = root.findViewById(R.id.scrim_in_front);
+            int scrimIndex = Math.max(root.indexOfChild(scrimInFront) - 3, 0);
+            root.addView(container, scrimIndex);
+        }
+        detachFromParent(mChargingAnimationViewController.getChargingView());
+        container.addView(mChargingAnimationViewController.getChargingView(),
                 new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));

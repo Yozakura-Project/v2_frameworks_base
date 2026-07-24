@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- YozakuraOS cp93: config for ported Infinity ChargingAnimation (charging circle overlay).
+     Kept in a dedicated file for surgical revert. -->
+<resources>
+    <color name="config_chargingAnimLightColor">#FFFFFFFF</color>
+    <color name="config_chargingAnimLowBatteryColor">#FFFF453A</color>
+    <color name="config_chargingAnimPercentColor">#FFFFFFFF</color>
+
+    <integer name="config_chargingAnimBoltHeight">0</integer>
+    <integer name="config_chargingAnimBoltRadius">0</integer>
+    <integer name="config_chargingAnimBoltWidth">0</integer>
+    <integer name="config_chargingAnimDimAlpha">120</integer>
+    <integer name="config_chargingAnimLowBatteryThreshold">15</integer>
+</resources>

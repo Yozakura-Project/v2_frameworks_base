@@ -16,6 +16,7 @@
 
 package com.android.systemui.statusbar;
 
+import com.android.systemui.util.ScrimUtils;
 import static com.android.systemui.keyguard.shared.model.KeyguardState.GONE;
 import static com.android.systemui.util.kotlin.JavaAdapterKt.combineFlows;
 
@@ -290,6 +291,7 @@ public class StatusBarStateControllerImpl implements
             for (RankedListener rl : new ArrayList<>(mListeners)) {
                 rl.mListener.onStateChanged(mState);
             }
+            ScrimUtils.get().setBarState(mState);
 
             for (RankedListener rl : new ArrayList<>(mListeners)) {
                 rl.mListener.onStatePostChange();

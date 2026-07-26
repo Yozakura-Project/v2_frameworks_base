@@ -19,6 +19,8 @@ package com.android.systemui.keyguard.ui.view.layout.sections
 
 import android.content.Context
 import android.os.Handler
+import android.os.UserHandle
+import android.provider.Settings
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.Barrier
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -62,15 +64,29 @@ constructor(
     private lateinit var sliceView: KeyguardSliceView
     private var disposableHandle: DisposableHandle? = null
 
+    /**
+     * YozakuraOS: a custom clock style draws its own date, so the legacy slice would double up on
+     * it. Upstream never hits this because smartspace is available there and already suppresses the
+     * slice; on a GMS-less build the slice is the one that stays, overlapping the custom clock.
+     */
+    private val isCustomClockEnabled: Boolean
+        get() =
+            Settings.Secure.getIntForUser(
+                context.contentResolver,
+                "lock_screen_custom_clock_style",
+                0,
+                UserHandle.USER_CURRENT,
+            ) != 0
+
     override fun addViews(constraintLayout: ConstraintLayout) {
-        if (smartspaceController.isEnabled) return
+        if (smartspaceController.isEnabled || isCustomClockEnabled) return
         sliceView =
             layoutInflater.inflate(R.layout.keyguard_slice_view, null, false) as KeyguardSliceView
         constraintLayout.addView(sliceView)
     }
 
     override fun bindData(constraintLayout: ConstraintLayout) {
-        if (smartspaceController.isEnabled) return
+        if (smartspaceController.isEnabled || isCustomClockEnabled) return
         val controller =
             KeyguardSliceViewController(
                 handler,
@@ -97,7 +113,7 @@ constructor(
     }
 
     override fun applyConstraints(constraintSet: ConstraintSet) {
-        if (smartspaceController.isEnabled) return
+        if (smartspaceController.isEnabled || isCustomClockEnabled) return
         constraintSet.apply {
             connect(
                 R.id.keyguard_slice_view,

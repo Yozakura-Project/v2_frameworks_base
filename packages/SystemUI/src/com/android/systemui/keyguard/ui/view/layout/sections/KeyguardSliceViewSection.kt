@@ -19,14 +19,13 @@ package com.android.systemui.keyguard.ui.view.layout.sections
 
 import android.content.Context
 import android.os.Handler
-import android.os.UserHandle
-import android.provider.Settings
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.Barrier
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.android.keyguard.KeyguardSliceView
 import com.android.keyguard.KeyguardSliceViewController
+import com.android.systemui.clocks.ClockStyle
 import com.android.systemui.customization.clocks.R as clocksR
 import com.android.systemui.dagger.qualifiers.Background
 import com.android.systemui.dagger.qualifiers.Main
@@ -70,13 +69,7 @@ constructor(
      * slice; on a GMS-less build the slice is the one that stays, overlapping the custom clock.
      */
     private val isCustomClockEnabled: Boolean
-        get() =
-            Settings.Secure.getIntForUser(
-                context.contentResolver,
-                "lock_screen_custom_clock_style",
-                0,
-                UserHandle.USER_CURRENT,
-            ) != 0
+        get() = ClockStyle.isCustomClockEnabled(context)
 
     override fun addViews(constraintLayout: ConstraintLayout) {
         if (smartspaceController.isEnabled || isCustomClockEnabled) return

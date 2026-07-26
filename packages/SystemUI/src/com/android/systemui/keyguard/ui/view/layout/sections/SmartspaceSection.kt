@@ -26,6 +26,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.constraintlayout.widget.ConstraintSet.GONE
 import androidx.constraintlayout.widget.ConstraintSet.VISIBLE
+import com.android.systemui.clocks.ClockStyle
 import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.keyguard.KeyguardUnlockAnimationController
 import com.android.systemui.keyguard.domain.interactor.KeyguardBlueprintInteractor
@@ -147,13 +148,7 @@ constructor(
                 dateView?.orientation = LinearLayout.VERTICAL
             }
         }
-        val isCustomClockEnabled =
-            android.provider.Settings.Secure.getIntForUser(
-                context.contentResolver,
-                "lock_screen_custom_clock_style",
-                0,
-                android.os.UserHandle.USER_CURRENT,
-            ) != 0
+        val isCustomClockEnabled = ClockStyle.isCustomClockEnabled(context)
         constraintSet.apply {
             if (isCustomClockEnabled) {
                 // YozakuraOS: hide the default smartspace/date so it doesn't

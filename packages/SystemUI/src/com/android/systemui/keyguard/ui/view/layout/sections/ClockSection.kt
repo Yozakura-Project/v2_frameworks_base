@@ -17,8 +17,7 @@
 
 package com.android.systemui.keyguard.ui.view.layout.sections
 
-import android.os.UserHandle
-import android.provider.Settings
+import com.android.systemui.clocks.ClockStyle
 
 import android.content.Context
 import android.view.View
@@ -125,18 +124,9 @@ constructor(
             setAlpha(getNonTargetClockFace(clock).views, 0F)
 
             // YozakuraOS: hide AOSP default clock when a custom clock style is active (avoid doubling)
-            val isCustomClockEnabled = Settings.Secure.getIntForUser(
-                    context.contentResolver,
-                    "lock_screen_custom_clock_style",
-                    0,
-                    UserHandle.USER_CURRENT
-            ) != 0
-            if (isCustomClockEnabled) {
+            if (ClockStyle.isCustomClockEnabled(context)) {
                 setAlpha(ClockViewIds.LOCKSCREEN_CLOCK_VIEW_SMALL, 0F)
                 setAlpha(ClockViewIds.LOCKSCREEN_CLOCK_VIEW_LARGE, 0F)
-                // YozakuraOS: also hide the legacy keyguard slice (top-left date) so it
-                // doesn't overlap the custom clock, which draws its own date.
-                setVisibility(R.id.keyguard_slice_view, GONE)
             }
 
             if (!keyguardClockViewModel.isLargeClockVisible.value) {

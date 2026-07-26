@@ -619,6 +619,22 @@ class ClockStyle @JvmOverloads constructor(
         @JvmField val CLOCK_FRAME_MARGIN_TOP_KEY: String = "lock_screen_custom_clock_margin_top"
         @JvmField val CLOCK_SIZE_KEY: String = "lock_screen_custom_clock_size_scale"
 
+        /**
+         * Single source of truth for "is a custom clock face active?".
+         *
+         * Several keyguard sections have to step aside for the custom clock, which draws its own
+         * date. Ask here instead of re-typing the setting key at each call site, so the answer
+         * cannot drift between them.
+         */
+        @JvmStatic
+        fun isCustomClockEnabled(context: Context): Boolean =
+            Settings.Secure.getIntForUser(
+                context.contentResolver,
+                CLOCK_STYLE_KEY,
+                DEFAULT_STYLE,
+                UserHandle.USER_CURRENT,
+            ) != DEFAULT_STYLE
+
         const val COLOR_MODE_DEFAULT = "default"
         const val COLOR_MODE_ACCENT = "accent"
         const val COLOR_MODE_CUSTOM = "custom"

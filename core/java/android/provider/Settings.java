@@ -12614,6 +12614,19 @@ public final class Settings {
         public static final String QS_AUTO_ADDED_TILES = "qs_auto_tiles";
 
         /**
+         * Whether to enable Smart Pixels
+         * @hide
+         */
+        public static final String SMART_PIXEL_FILTER_ENABLED = "smart_pixel_filter_enabled";
+
+        /**
+         * Smart Pixels percentage
+         * @hide
+         */
+        public static final String SMART_PIXEL_FILTER_PERCENT = "smart_pixel_filter_percent";
+
+
+        /**
          * The duration of timeout, in milliseconds, to switch from a non-Dock User to the
          * Dock User when the device is docked.
          * @hide

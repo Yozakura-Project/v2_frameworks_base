@@ -45,5 +45,12 @@ public interface FlashlightController extends CallbackController<FlashlightListe
          * @param available true if the flashlight is currently available.
          */
         void onFlashlightAvailabilityChanged(boolean available);
+
+        /**
+         * YozakuraOS DynamicBar: called when the flashlight strength changes (if
+         * supported). Default no-op so existing FlashlightListener implementers
+         * are unaffected; only the DynamicBar torch source overrides it.
+         */
+        default void onFlashlightStrengthChanged(int level) {}
     }
 }

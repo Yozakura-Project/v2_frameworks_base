@@ -151,6 +151,36 @@ import javax.inject.Inject;
 public class KeyguardIndicationController {
 
     public static final String TAG = "KeyguardIndication";
+
+    // YozakuraOS DynamicBar (Stage A2): additive listener API consumed by
+    // AxDynamicBarInteractor to surface keyguard indications as dynamic islands.
+    // Purely additive - existing indication behaviour is untouched. The
+    // notifyIndicationListeners(...) call sites that feed the island are wired in
+    // a later stage; the feature gate (ax_dynamic_bar_enabled) is off by default.
+    public interface IndicationListener {
+        void onIndicationUpdated(int type, @Nullable CharSequence text);
+    }
+    public static final int AX_TYPE_BIOMETRIC = 0;
+    public static final int AX_TYPE_TRANSIENT = 1;
+    public static final int AX_TYPE_TRUST = 2;
+    public static final int AX_TYPE_DISCLOSURE = 3;
+    public static final int AX_TYPE_OWNER_INFO = 4;
+    public static final int AX_TYPE_ALIGNMENT = 5;
+    public static final int AX_TYPE_PERSISTENT_UNLOCK = 6;
+    private final java.util.List<IndicationListener> mIndicationListeners =
+            new java.util.ArrayList<>();
+    public void addIndicationListener(IndicationListener listener) {
+        mIndicationListeners.add(listener);
+    }
+    public void removeIndicationListener(IndicationListener listener) {
+        mIndicationListeners.remove(listener);
+    }
+    @SuppressWarnings("unused")
+    private void notifyIndicationListeners(int type, @Nullable CharSequence text) {
+        for (IndicationListener listener : mIndicationListeners) {
+            listener.onIndicationUpdated(type, text);
+        }
+    }
     private static final boolean DEBUG_CHARGING_SPEED = false;
 
     private static final int MSG_SHOW_ACTION_TO_UNLOCK = 1;

@@ -136,14 +136,29 @@ constructor(
         }
     }
 
+    // Yozakura: guard the notification handler add/remove. Keyguard show/hide churn (e.g. an app
+    // launched over the lock screen occluding then re-showing keyguard, as the DynamicBar media
+    // island does) could otherwise double-add the handler, which throws Listener is already added
+    // and crash-loops SystemUI. addNotificationHandler is not idempotent, so track it ourselves.
+    private var notificationHandlerAdded = false
+
+    private fun setNotificationHandlerAdded(add: Boolean) {
+        if (add == notificationHandlerAdded) return
+        if (add) listener.addNotificationHandler(this) else listener.removeNotificationHandler(this)
+        notificationHandlerAdded = add
+    }
+
     override fun onKeyguardShowingChanged(showing: Boolean) {
-        if (!currentSettings.isEnabled) return
+        if (!currentSettings.isEnabled) {
+            setNotificationHandlerAdded(false)
+            return
+        }
         if (!showing) {
             edgeLightView.pulseRunning = false
             edgeLightView.visible = false
-            listener.removeNotificationHandler(this)
+            setNotificationHandlerAdded(false)
         } else {
-            listener.addNotificationHandler(this)
+            setNotificationHandlerAdded(true)
             updateView()
         }
     }

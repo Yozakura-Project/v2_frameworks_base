@@ -43,6 +43,7 @@ import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.plugins.statusbar.StatusBarStateController;
 import com.android.systemui.settings.UserTracker;
 import com.android.systemui.statusbar.StatusBarState;
+import com.android.systemui.axdynamicbar.domain.AxDynamicBarSettings;
 import com.android.systemui.statusbar.notification.NotifPipelineFlags;
 import com.android.systemui.statusbar.notification.collection.NotificationEntry;
 import com.android.systemui.statusbar.policy.BatteryController;
@@ -86,6 +87,8 @@ public class NotificationInterruptStateProviderImpl implements NotificationInter
     private final GlobalSettings mGlobalSettings;
     private final EventLog mEventLog;
     private final Optional<Bubbles> mBubbles;
+    // Yozakura DynamicBar: routes notifications to the island (legacy interrupt path).
+    private final AxDynamicBarSettings mAxDynamicBarSettings;
 
     @VisibleForTesting
     protected boolean mUseHeadsUp = false;
@@ -136,7 +139,8 @@ public class NotificationInterruptStateProviderImpl implements NotificationInter
             SystemClock systemClock,
             GlobalSettings globalSettings,
             EventLog eventLog,
-            Optional<Bubbles> bubbles) {
+            Optional<Bubbles> bubbles,
+            AxDynamicBarSettings axDynamicBarSettings) {
         mPowerManager = powerManager;
         mBatteryController = batteryController;
         mAmbientDisplayConfiguration = ambientDisplayConfiguration;
@@ -153,6 +157,7 @@ public class NotificationInterruptStateProviderImpl implements NotificationInter
         mGlobalSettings = globalSettings;
         mEventLog = eventLog;
         mBubbles = bubbles;
+        mAxDynamicBarSettings = axDynamicBarSettings;
         ContentObserver headsUpObserver = new ContentObserver(mainHandler) {
             @Override
             public void onChange(boolean selfChange) {
@@ -426,6 +431,13 @@ public class NotificationInterruptStateProviderImpl implements NotificationInter
         StatusBarNotification sbn = entry.getSbn();
 
         if (!mUseHeadsUp) {
+            if (log) mLogger.logNoHeadsUpFeatureDisabled();
+            return false;
+        }
+
+        // Yozakura DynamicBar: when the bar routes notifications to the island, do not peek.
+        // Inert while OFF (isNotificationEventsActive() == false) -> heads-up unchanged.
+        if (mAxDynamicBarSettings.isNotificationEventsActive()) {
             if (log) mLogger.logNoHeadsUpFeatureDisabled();
             return false;
         }

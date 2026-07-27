@@ -32,6 +32,7 @@ import com.android.systemui.settings.UserTracker
 import com.android.systemui.shade.ShadeDisplayAware
 import com.android.systemui.shared.notifications.domain.interactor.NotificationSettingsInteractor
 import com.android.systemui.statusbar.notification.collection.NotificationEntry
+import com.android.systemui.axdynamicbar.domain.AxDynamicBarSettings
 import com.android.systemui.statusbar.notification.headsup.HeadsUpManager
 import com.android.systemui.statusbar.notification.interruption.VisualInterruptionDecisionProvider.Decision
 import com.android.systemui.statusbar.notification.interruption.VisualInterruptionDecisionProvider.FullScreenIntentDecision
@@ -77,6 +78,7 @@ constructor(
     private val notificationManager: NotificationManager,
     private val settingsInteractor: NotificationSettingsInteractor,
     private val deviceProvisioningInteractor: DeviceProvisioningInteractor,
+    private val axDynamicBarSettings: AxDynamicBarSettings,
 ) : VisualInterruptionDecisionProvider {
 
     init {
@@ -166,6 +168,8 @@ constructor(
         check(!started)
 
         addCondition(PeekDisabledSuppressor(globalSettings, headsUpManager, logger, mainHandler))
+        // Yozakura DynamicBar: route notifications to the island (inert while OFF).
+        addCondition(PeekAxDynamicBarSuppressor(axDynamicBarSettings))
         addCondition(PulseDisabledSuppressor(ambientDisplayConfiguration, userTracker))
         addCondition(PulseBatterySaverSuppressor(batteryController))
         addFilter(PeekPackageSnoozedSuppressor(headsUpManager))

@@ -57,6 +57,7 @@ import com.android.systemui.statusbar.notification.interruption.NotificationInte
 import com.android.systemui.statusbar.notification.interruption.NotificationInterruptStateProviderImpl.NotificationInterruptEvent.HUN_SUPPRESSED_OLD_WHEN
 import com.android.systemui.statusbar.notification.interruption.VisualInterruptionType.BUBBLE
 import com.android.systemui.statusbar.notification.interruption.VisualInterruptionType.PEEK
+import com.android.systemui.axdynamicbar.domain.AxDynamicBarSettings
 import com.android.systemui.statusbar.notification.interruption.VisualInterruptionType.PULSE
 import com.android.systemui.statusbar.policy.BatteryController
 import com.android.systemui.statusbar.policy.data.repository.DeviceProvisioningRepository
@@ -510,4 +511,17 @@ class AvalancheSuppressor(
         }
         return isEnabled
     }
+}
+
+/**
+ * Yozakura DynamicBar: suppress heads-up (peek) so the notification is routed to the island
+ * instead. Inert while the bar is OFF (isNotificationEventsActive() == false).
+ */
+class PeekAxDynamicBarSuppressor(
+    private val settings: AxDynamicBarSettings,
+) : VisualInterruptionCondition(
+    types = setOf(PEEK),
+    reason = "suppressed by AxDynamicBar"
+) {
+    override fun shouldSuppress(): Boolean = settings.isNotificationEventsActive()
 }

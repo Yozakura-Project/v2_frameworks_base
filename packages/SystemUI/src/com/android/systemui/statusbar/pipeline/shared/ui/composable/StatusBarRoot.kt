@@ -23,6 +23,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.VisibleForTesting
+import androidx.compose.runtime.collectAsState
+import com.android.systemui.axdynamicbar.ui.AxDynamicBarChipViewModel
+import com.android.systemui.axdynamicbar.ui.compose.AxDynamicBarChip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -140,6 +143,7 @@ constructor(
     @DisplayAware private val homeStatusBarViewBinder: HomeStatusBarViewBinder,
     @DisplayAware private val homeStatusBarViewModelFactory: HomeStatusBarViewModelFactory,
     private val statusBarRegionSamplingViewModelFactory: StatusBarRegionSamplingViewModel.Factory,
+    private val axDynamicBarChipViewModel: AxDynamicBarChipViewModel,
 ) {
     fun create(root: ViewGroup, andThen: (ViewGroup) -> Unit): ComposeView {
         val composeView = ComposeView(root.context)
@@ -164,6 +168,7 @@ constructor(
                         mediaViewModelFactory = mediaViewModelFactory,
                         statusBarRegionSamplingViewModelFactory =
                             statusBarRegionSamplingViewModelFactory,
+                        axDynamicBarChipViewModel = axDynamicBarChipViewModel,
                         onViewCreated = andThen,
                         modifier = Modifier.sysUiResTagContainer(),
                     )
@@ -203,6 +208,7 @@ fun StatusBarRoot(
     mediaHost: MediaHost,
     mediaViewModelFactory: MediaViewModel.Factory,
     statusBarRegionSamplingViewModelFactory: StatusBarRegionSamplingViewModel.Factory,
+    axDynamicBarChipViewModel: AxDynamicBarChipViewModel,
     onViewCreated: (ViewGroup) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -263,6 +269,7 @@ fun StatusBarRoot(
                         statusBarViewModel = statusBarViewModel,
                         iconViewStore = iconViewStore,
                         appHandlesViewModel = appHandlesViewModel,
+                        axDynamicBarChipViewModel = axDynamicBarChipViewModel,
                         context = context,
                     )
                 }
@@ -404,6 +411,7 @@ private fun addStartSideComposable(
     statusBarViewModel: HomeStatusBarViewModel,
     iconViewStore: NotificationIconContainerViewBinder.IconViewStore?,
     appHandlesViewModel: AppHandlesViewModel,
+    axDynamicBarChipViewModel: AxDynamicBarChipViewModel,
     context: Context,
 ) {
     val startSideExceptHeadsUp =
@@ -485,6 +493,15 @@ private fun addStartSideComposable(
                         )
                     }
 
+                // YozakuraOS DynamicBar (cp106): render the island chip on the start side,
+                // gated by Settings.Secure ax_dynamic_bar_enabled (default off).
+                val axEnabled by axDynamicBarChipViewModel.interactor.settings.isEnabled.collectAsState()
+                if (axEnabled) {
+                    AxDynamicBarChip(
+                        viewModel = axDynamicBarChipViewModel,
+                        modifier = Modifier.widthIn(max = chipsMaxWidth),
+                    )
+                }
                 val chipsVisibilityModel = statusBarViewModel.ongoingActivityChips
                 if (chipsVisibilityModel.areChipsAllowed) {
                     OngoingActivityChips(

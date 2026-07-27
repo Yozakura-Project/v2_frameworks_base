@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: The YozakuraOS Project
+     SPDX-License-Identifier: Apache-2.0
+
+     DynamicBar (axdynamicbar) event-label strings, ported verbatim from Infinity
+     (infinity_strings.xml). Kept in their own file so upstream SystemUI string
+     files stay conflict-free on re-sync. Stage A of the DynamicBar migration
+     (see the "Infinity全機能移植 campaign" vault note); the feature is gated OFF
+     by default (Settings.Secure ax_dynamic_bar_enabled = 0) so this stage adds
+     no active behaviour.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="ax_dynamic_bar_alarm">Alarm</string>
+    <string name="ax_dynamic_bar_call">Call</string>
+    <string name="ax_dynamic_bar_charging">Charging</string>
+    <string name="ax_dynamic_bar_connected">Connected</string>
+    <string name="ax_dynamic_bar_copied">Copied</string>
+    <string name="ax_dynamic_bar_days_ago"><xliff:g id="count" example="3">%d</xliff:g>d ago</string>
+    <string name="ax_dynamic_bar_flashlight">Flashlight</string>
+    <string name="ax_dynamic_bar_hotspot">Hotspot</string>
+    <string name="ax_dynamic_bar_hours_ago"><xliff:g id="count" example="2">%d</xliff:g>h ago</string>
+    <string name="ax_dynamic_bar_just_now">Just now</string>
+    <string name="ax_dynamic_bar_mins_ago"><xliff:g id="count" example="5">%d</xliff:g>m ago</string>
+    <string name="ax_dynamic_bar_music">Music</string>
+    <string name="ax_dynamic_bar_now_playing">Now Playing</string>
+    <string name="ax_dynamic_bar_on">ON</string>
+    <string name="ax_dynamic_bar_paused">Paused</string>
+    <string name="ax_dynamic_bar_recording">Recording</string>
+    <string name="ax_dynamic_bar_ring">Ring</string>
+    <string name="ax_dynamic_bar_saved">Saved</string>
+    <string name="ax_dynamic_bar_silent">Silent</string>
+    <string name="ax_dynamic_bar_stopwatch">Stopwatch</string>
+    <string name="ax_dynamic_bar_timer">Timer</string>
+    <string name="ax_dynamic_bar_unlocked">Unlocked</string>
+    <string name="ax_dynamic_bar_vibrate">Vibrate</string>
+    <string name="ax_dynamic_bar_vpn_active">VPN Active</string>
+    <string name="ax_dynamic_bar_vpn_connected">VPN Connected</string>
+    <string name="ax_dynamic_bar_weeks_ago"><xliff:g id="count" example="1">%d</xliff:g>w ago</string>
+    <string name="ax_dynamic_bar_wireless_charging">Wireless Charging</string>
+
+</resources>

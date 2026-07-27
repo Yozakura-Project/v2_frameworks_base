@@ -54,10 +54,29 @@ public class KeyguardIndicationTextView extends DoubleShadowTextView {
     private static int sButtonStyleId = R.style.TextAppearance_Keyguard_BottomArea_Button;
 
     private boolean mAnimationsEnabled = true;
+    // Yozakura DynamicBar: suppress this indication line while the keyguard island chip owns the area.
+    private boolean mSuppressVisibility = false;
     private CharSequence mMessage;
     private KeyguardIndication mKeyguardIndicationInfo;
 
     private Animator mLastAnimator;
+
+    /** Yozakura DynamicBar: force-hide this line so the keyguard island chip can replace it. */
+    public void setSuppressVisibility(boolean suppress) {
+        mSuppressVisibility = suppress;
+        if (suppress) {
+            super.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @Override
+    public void setVisibility(int visibility) {
+        if (mSuppressVisibility && visibility == View.VISIBLE) {
+            super.setVisibility(View.INVISIBLE);
+            return;
+        }
+        super.setVisibility(visibility);
+    }
 
     public KeyguardIndicationTextView(Context context) {
         super(context);

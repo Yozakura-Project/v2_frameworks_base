@@ -21,6 +21,7 @@ import com.android.systemui.dagger.SysUISingleton
 import com.android.systemui.keyguard.shared.model.KeyguardBlueprint
 import com.android.systemui.keyguard.shared.model.KeyguardSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AccessibilityActionsSection
+import com.android.systemui.keyguard.ui.view.layout.sections.AxDynamicBarKeyguardChipSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AodBurnInSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AodNotificationIconsSection
 import com.android.systemui.keyguard.ui.view.layout.sections.AodPromotedNotificationSection
@@ -54,6 +55,7 @@ class SplitShadeKeyguardBlueprint
 constructor(
     accessibilityActionsSection: AccessibilityActionsSection,
     defaultIndicationAreaSection: DefaultIndicationAreaSection,
+    axDynamicBarKeyguardChipSection: AxDynamicBarKeyguardChipSection,
     defaultDeviceEntrySection: DefaultDeviceEntrySection,
     defaultShortcutsSection: DefaultShortcutsSection,
     @Named(KeyguardSectionsModule.KEYGUARD_AMBIENT_INDICATION_AREA_SECTION)
@@ -78,6 +80,7 @@ constructor(
         listOfNotNull(
             accessibilityActionsSection,
             defaultIndicationAreaSection,
+            axDynamicBarKeyguardChipSection,
             defaultShortcutsSection,
             defaultAmbientIndicationAreaSection.getOrNull(),
             defaultSettingsPopupMenuSection,

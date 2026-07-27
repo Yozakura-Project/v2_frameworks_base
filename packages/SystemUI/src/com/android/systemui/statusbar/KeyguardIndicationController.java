@@ -238,6 +238,8 @@ public class KeyguardIndicationController {
     private BiometricSourceType mBiometricMessageSource;
     private ColorStateList mInitialTextColorState;
     private boolean mVisible;
+    // Yozakura DynamicBar: true while the keyguard island chip suppresses the indication text.
+    private boolean mSuppressIndication;
     private boolean mOrganizationOwnedDevice;
 
     // these all assume the device is plugged in (wired/wireless/docked) AND chargingOrFull:
@@ -947,6 +949,23 @@ public class KeyguardIndicationController {
         } else {
             // If we unlock and return to keyguard quickly, previous error should not be shown
             hideTransientIndication();
+        }
+    }
+
+    /**
+     * Yozakura DynamicBar: suppress the keyguard indication text so the island chip can own
+     * the indication area. Inert unless the chip requests suppression.
+     */
+    public void setSuppressIndication(boolean suppress) {
+        mSuppressIndication = suppress;
+        if (mTopIndicationView != null) {
+            mTopIndicationView.setSuppressVisibility(suppress);
+        }
+        if (mLockScreenIndicationView != null) {
+            mLockScreenIndicationView.setSuppressVisibility(suppress);
+        }
+        if (!suppress && mVisible) {
+            updateDeviceEntryIndication(false);
         }
     }
 

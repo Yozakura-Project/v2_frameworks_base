@@ -47,6 +47,7 @@ import androidx.core.animation.ValueAnimator;
 import com.android.app.animation.InterpolatorsAndroidX;
 import com.android.keyguard.AlphaOptimizedLinearLayout;
 import com.android.keyguard.CarrierTextController;
+import com.android.systemui.axdynamicbar.ui.AxDynamicBarChipViewModel;
 import com.android.keyguard.KeyguardUpdateMonitor;
 import com.android.keyguard.KeyguardUpdateMonitorCallback;
 import com.android.keyguard.logging.KeyguardLogger;
@@ -167,6 +168,8 @@ public class KeyguardStatusBarViewController extends ViewController<KeyguardStat
     private final OccludedToLockscreenTransitionViewModel mOccludedToLockscreenTransitionViewModel;
     private final DreamViewModel mDreamViewModel;
     private final KeyguardInteractor mKeyguardInteractor;
+    // Yozakura DynamicBar: feeds keyguard carrier text into the island chip. Inert while OFF.
+    private final AxDynamicBarChipViewModel mAxDynamicBarChipViewModel;
 
     @Nullable private ComposeView mBatteryComposeView;
     private ViewGroup mSystemIconsContainer;
@@ -391,7 +394,8 @@ public class KeyguardStatusBarViewController extends ViewController<KeyguardStat
             GoneToGlanceableHubTransitionViewModel goneToGlanceableHubTransitionViewModel,
             OccludedToLockscreenTransitionViewModel occludedToLockscreenTransitionViewModel,
             DreamViewModel dreamViewModel,
-            KeyguardInteractor keyguardInteractor
+            KeyguardInteractor keyguardInteractor,
+            AxDynamicBarChipViewModel axDynamicBarChipViewModel
     ) {
         super(view);
         mCoroutineDispatcher = dispatcher;
@@ -428,6 +432,7 @@ public class KeyguardStatusBarViewController extends ViewController<KeyguardStat
         mOccludedToLockscreenTransitionViewModel = occludedToLockscreenTransitionViewModel;
         mDreamViewModel = dreamViewModel;
         mKeyguardInteractor = keyguardInteractor;
+        mAxDynamicBarChipViewModel = axDynamicBarChipViewModel;
 
         mFirstBypassAttempt = mKeyguardBypassController.getBypassEnabled();
         if (!SceneContainerFlag.isEnabled()) {
@@ -477,6 +482,20 @@ public class KeyguardStatusBarViewController extends ViewController<KeyguardStat
             mKeyguardStateController.addCallback(mKeyguardStateControllerCallback);
         }
         mView.init(mStatusBarUserChipViewModel);
+        // Yozakura DynamicBar: mirror the keyguard carrier text into the island chip view model.
+        // Additive and inert while the bar is OFF (the chip is not drawn).
+        final android.widget.TextView axCarrierLabel = mView.findViewById(R.id.keyguard_carrier_text);
+        if (axCarrierLabel != null) {
+            axCarrierLabel.addTextChangedListener(new android.text.TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+                @Override public void onTextChanged(CharSequence s, int st, int b, int c) {}
+                @Override public void afterTextChanged(android.text.Editable s) {
+                    mAxDynamicBarChipViewModel.updateKeyguardCarrierText(s.toString());
+                }
+            });
+            mAxDynamicBarChipViewModel.updateKeyguardCarrierText(
+                    axCarrierLabel.getText().toString());
+        }
         mConfigurationController.addCallback(mConfigurationListener);
         mAnimationScheduler.addCallback(mAnimationCallback);
         mUserInfoController.addCallback(mOnUserInfoChangedListener);

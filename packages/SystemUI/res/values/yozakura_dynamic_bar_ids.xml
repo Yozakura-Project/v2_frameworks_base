@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Yozakura DynamicBar (axdynamicbar) view ids. Additive/inert; consumed by the
+     ported keyguard chip section. -->
+<resources>
+    <!-- Keyguard island chip host view (DynamicBar Stage D). -->
+    <item type="id" name="ax_dynamic_bar_keyguard_chip" />
+    <!-- Referenced by AxDynamicBarKeyguardChipSection.HIDDEN_VIEW_IDS. LineageOS 23.2
+         ships no enhanced-smartspace pager, so these resolve to null via mapNotNull. -->
+    <item type="id" name="bc_smartspace_view" />
+    <item type="id" name="smartspace_card_pager" />
+    <item type="id" name="smartspace_page_indicator" />
+</resources>

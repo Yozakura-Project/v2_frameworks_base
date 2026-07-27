@@ -50,6 +50,7 @@ import com.android.systemui.media.taptotransfer.receiver.MediaTttChipControllerR
 import com.android.systemui.media.taptotransfer.sender.MediaTttSenderCoordinator
 import com.android.systemui.mediaprojection.taskswitcher.MediaProjectionTaskSwitcherCoreStartable
 import com.android.systemui.shortcut.ShortcutKeyDispatcher
+import com.android.systemui.axdynamicbar.ui.AxDynamicBarManager
 import com.android.systemui.smartpixel.ui.SmartPixelManager
 import com.android.systemui.statusbar.ImmersiveModeConfirmation
 import com.android.systemui.statusbar.gesture.GesturePointerEventListener
@@ -178,6 +179,13 @@ abstract class SystemUICoreStartableModule {
     @IntoMap
     @ClassKey(SmartPixelManager::class)
     abstract fun bindSmartPixelManager(impl: SmartPixelManager): CoreStartable
+
+    /** Inject into AxDynamicBarManager (DynamicBar). Gated off by default via
+     * Settings.Secure ax_dynamic_bar_enabled, so start() is inert until enabled. */
+    @Binds
+    @IntoMap
+    @ClassKey(AxDynamicBarManager::class)
+    abstract fun bindAxDynamicBarManager(impl: AxDynamicBarManager): CoreStartable
 
     /** Inject into SliceBroadcastRelayHandler. */
     @Binds

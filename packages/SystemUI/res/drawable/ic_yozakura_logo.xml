@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2026 YozakuraOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<!-- YozakuraOS status bar logo: five petal sakura silhouette.
+
+     Each petal is wide and rounded with the notch (切れ込み) at its outer tip
+     that makes a cherry blossom read as sakura rather than as a star, and the
+     five petals overlap at the centre so the shape stays solid at status bar
+     size. One flat fill colour throughout so LogoImage can tint it (status bar
+     tint / accent / custom colour) exactly like the other logo styles. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="20.0dp"
+        android:height="20.0dp"
+        android:viewportWidth="24.0"
+        android:viewportHeight="24.0">
+    <group
+        android:pivotX="12.0"
+        android:pivotY="12.0"
+        android:rotation="0.0">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M12,12.8C9.9,11.8 8.4,10.1 8.2,8.0C8.0,6.0 9.2,4.1 11.0,2.9C11.4,3.7 11.7,4.4 12,5.1C12.3,4.4 12.6,3.7 13.0,2.9C14.8,4.1 16.0,6.0 15.8,8.0C15.6,10.1 14.1,11.8 12,12.8Z" />
+    </group>
+    <group
+        android:pivotX="12.0"
+        android:pivotY="12.0"
+        android:rotation="72.0">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M12,12.8C9.9,11.8 8.4,10.1 8.2,8.0C8.0,6.0 9.2,4.1 11.0,2.9C11.4,3.7 11.7,4.4 12,5.1C12.3,4.4 12.6,3.7 13.0,2.9C14.8,4.1 16.0,6.0 15.8,8.0C15.6,10.1 14.1,11.8 12,12.8Z" />
+    </group>
+    <group
+        android:pivotX="12.0"
+        android:pivotY="12.0"
+        android:rotation="144.0">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M12,12.8C9.9,11.8 8.4,10.1 8.2,8.0C8.0,6.0 9.2,4.1 11.0,2.9C11.4,3.7 11.7,4.4 12,5.1C12.3,4.4 12.6,3.7 13.0,2.9C14.8,4.1 16.0,6.0 15.8,8.0C15.6,10.1 14.1,11.8 12,12.8Z" />
+    </group>
+    <group
+        android:pivotX="12.0"
+        android:pivotY="12.0"
+        android:rotation="216.0">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M12,12.8C9.9,11.8 8.4,10.1 8.2,8.0C8.0,6.0 9.2,4.1 11.0,2.9C11.4,3.7 11.7,4.4 12,5.1C12.3,4.4 12.6,3.7 13.0,2.9C14.8,4.1 16.0,6.0 15.8,8.0C15.6,10.1 14.1,11.8 12,12.8Z" />
+    </group>
+    <group
+        android:pivotX="12.0"
+        android:pivotY="12.0"
+        android:rotation="288.0">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M12,12.8C9.9,11.8 8.4,10.1 8.2,8.0C8.0,6.0 9.2,4.1 11.0,2.9C11.4,3.7 11.7,4.4 12,5.1C12.3,4.4 12.6,3.7 13.0,2.9C14.8,4.1 16.0,6.0 15.8,8.0C15.6,10.1 14.1,11.8 12,12.8Z" />
+    </group>
+</vector>

@@ -57,6 +57,7 @@ import com.android.systemui.statusbar.phone.ongoingcall.StatusBarChipsModernizat
 import com.android.systemui.statusbar.phone.ui.StatusBarIconController
 import com.android.systemui.statusbar.pipeline.shared.ui.model.VisibilityModel
 import com.android.systemui.statusbar.pipeline.shared.ui.viewmodel.HomeStatusBarViewModel
+import com.android.systemui.infinity.logo.LogoImage
 import com.android.systemui.statusbar.policy.Clock
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -127,6 +128,7 @@ constructor(
         val networkTrafficCenterView = view.findViewById<View>(R.id.network_traffic_holder_center)
         val networkTrafficStartView = view.findViewById<View>(R.id.network_traffic_holder_start)
         val notificationIconsArea = view.requireViewById<View>(R.id.notificationIcons)
+        val leftLogo: LogoImage = view.requireViewById(R.id.statusbar_logo)
 
         // CollapsedStatusBarFragment doesn't need this
         if (StatusBarRootModernization.isEnabled) {
@@ -137,6 +139,7 @@ constructor(
             centerClock.hideInitially(state = View.GONE)
             rightClock.hideInitially(state = View.GONE)
             notificationIconsArea.hideInitially()
+            leftLogo.hideInitially()
         }
 
         view.repeatWhenAttached {
@@ -474,6 +477,7 @@ constructor(
                     launch {
                         viewModel.isNotificationIconContainerVisible.collect {
                             notificationIconsArea.adjustVisibility(it)
+                            leftLogo.adjustVisibility(it)
                         }
                     }
 

@@ -554,6 +554,13 @@
         <service android:name=".recordissue.IssueRecordingService"
                  android:foregroundServiceType="systemExempted"/>
 
+        <!-- YozakuraOS cp117: On-The-Go camera see-through service.
+             Registered exactly as Infinity does, including the separate :onthego
+             process, since the service holds a camera preview surface. -->
+        <service android:name=".infinity.onthego.OnTheGoService"
+            android:process=":onthego"
+            android:exported="true" />
+
         <receiver android:name=".SysuiRestartReceiver"
             android:exported="false">
             <intent-filter>

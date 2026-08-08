@@ -25,6 +25,7 @@ import com.android.systemui.qs.tiles.AmbientDisplayTile
 import com.android.systemui.qs.tiles.AODTile
 import com.android.systemui.qs.tiles.CaffeineTile
 import com.android.systemui.qs.tiles.HeadsUpTile
+import com.android.systemui.qs.tiles.OnTheGoTile
 import com.android.systemui.qs.tiles.PowerShareTile
 import com.android.systemui.qs.tiles.ProfilesTile
 import com.android.systemui.qs.tiles.ReadingModeTile
@@ -54,6 +55,12 @@ interface LineageModule {
     @IntoMap
     @StringKey(SmartPixelTile.TILE_SPEC)
     fun bindSmartPixelTile(smartPixelTile: SmartPixelTile): QSTileImpl<*>
+
+    /** Inject OnTheGoTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(OnTheGoTile.TILE_SPEC)
+    fun bindOnTheGoTile(onTheGoTile: OnTheGoTile): QSTileImpl<*>
 
     /** Inject AODTile into tileMap in QSModule */
     @Binds
@@ -135,6 +142,21 @@ interface LineageModule {
                     ),
                 instanceId = uiEventLogger.getNewInstanceId(),
                 category = TileCategory.DISPLAY,
+            )
+
+        @Provides
+        @IntoMap
+        @StringKey(OnTheGoTile.TILE_SPEC)
+        fun provideOnTheGoTileConfig(uiEventLogger: QsEventLogger): QSTileConfig =
+            QSTileConfig(
+                tileSpec = TileSpec.create(OnTheGoTile.TILE_SPEC),
+                uiConfig =
+                    QSTileUIConfig.Resource(
+                        iconRes = R.drawable.ic_qs_onthego,
+                        labelRes = R.string.global_action_onthego
+                    ),
+                instanceId = uiEventLogger.getNewInstanceId(),
+                category = TileCategory.ACCESSIBILITY,
             )
 
         @Provides

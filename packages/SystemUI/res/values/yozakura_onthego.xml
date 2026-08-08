@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: The YozakuraOS Project
+     SPDX-License-Identifier: Apache-2.0
+
+     YozakuraOS cp117: strings and integers the ported On-The-Go sources reference.
+     Copied verbatim from the Infinity definitions and kept in their own file so the
+     ported sources and the shared strings.xml stay untouched (same approach as the
+     cp107 keyguard ids file).
+-->
+<resources>
+    <string name="global_action_onthego">On-The-Go</string>
+    <string name="onthego_channel_name">Main</string>
+    <string name="onthego_notif_camera_changed">Camera mode changed</string>
+    <string name="onthego_notif_error">Unable to start On-The-Go</string>
+    <string name="onthego_notif_options">Options</string>
+    <string name="onthego_notif_restart">Restart On-The-Go</string>
+    <string name="onthego_notif_stop">Stop</string>
+    <string name="onthego_notif_ticker">On-The-Go activated</string>
+    <string name="onthego_notif_title">On-The-Go is active</string>
+    <string name="onthego_front_camera">Use front camera</string>
+    <string name="onthego_service_toggle">Automatically restart service</string>
+    <string name="onthego_transparency">Transparency</string>
+
+    <integer name="quick_settings_onthego_dialog_short_timeout">3000</integer>
+    <integer name="quick_settings_onthego_dialog_long_timeout">6000</integer>
+</resources>

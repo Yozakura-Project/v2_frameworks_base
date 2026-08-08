@@ -5445,6 +5445,26 @@ public final class Settings {
         public static final String STATUS_BAR_LOGO_STYLE = "status_bar_logo_style";
 
         /**
+         * The alpha value of the On-The-Go overlay.
+         * @hide
+         */
+        public static final String ON_THE_GO_ALPHA = "on_the_go_alpha";
+
+        /**
+         * Whether the service should restart itself or not.
+         * @hide
+         */
+        public static final String ON_THE_GO_SERVICE_RESTART = "on_the_go_service_restart";
+
+        /**
+         * Which camera the On-The-Go overlay uses.
+         * 0 = Rear Camera
+         * 1 = Front Camera
+         * @hide
+         */
+        public static final String ON_THE_GO_CAMERA = "on_the_go_camera";
+
+        /**
          * The screen backlight brightness between 1 (minimum) and 255 (maximum).
          *
          * Use {@link android.view.WindowManager.LayoutParams#screenBrightness} to set the screen

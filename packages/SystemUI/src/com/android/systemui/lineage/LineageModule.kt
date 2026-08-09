@@ -25,6 +25,9 @@ import com.android.systemui.qs.tiles.AmbientDisplayTile
 import com.android.systemui.qs.tiles.AODTile
 import com.android.systemui.qs.tiles.CaffeineTile
 import com.android.systemui.qs.tiles.HeadsUpTile
+import com.android.systemui.qs.tiles.CompassTile
+import com.android.systemui.qs.tiles.VolumeTile
+import com.android.systemui.qs.tiles.SoundTile
 import com.android.systemui.qs.tiles.OnTheGoTile
 import com.android.systemui.qs.tiles.PowerShareTile
 import com.android.systemui.qs.tiles.ProfilesTile
@@ -61,6 +64,24 @@ interface LineageModule {
     @IntoMap
     @StringKey(OnTheGoTile.TILE_SPEC)
     fun bindOnTheGoTile(onTheGoTile: OnTheGoTile): QSTileImpl<*>
+
+    /** Inject CompassTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(CompassTile.TILE_SPEC)
+    fun bindCompassTile(compassTile: CompassTile): QSTileImpl<*>
+
+    /** Inject VolumeTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(VolumeTile.TILE_SPEC)
+    fun bindVolumeTile(volumeTile: VolumeTile): QSTileImpl<*>
+
+    /** Inject SoundTile into tileMap in QSModule */
+    @Binds
+    @IntoMap
+    @StringKey(SoundTile.TILE_SPEC)
+    fun bindSoundTile(soundTile: SoundTile): QSTileImpl<*>
 
     /** Inject AODTile into tileMap in QSModule */
     @Binds
@@ -142,6 +163,51 @@ interface LineageModule {
                     ),
                 instanceId = uiEventLogger.getNewInstanceId(),
                 category = TileCategory.DISPLAY,
+            )
+
+        @Provides
+        @IntoMap
+        @StringKey(CompassTile.TILE_SPEC)
+        fun provideCompassTileConfig(uiEventLogger: QsEventLogger): QSTileConfig =
+            QSTileConfig(
+                tileSpec = TileSpec.create(CompassTile.TILE_SPEC),
+                uiConfig =
+                    QSTileUIConfig.Resource(
+                        iconRes = R.drawable.ic_qs_compass,
+                        labelRes = R.string.quick_settings_compass_label
+                    ),
+                instanceId = uiEventLogger.getNewInstanceId(),
+                category = TileCategory.UTILITIES,
+            )
+
+        @Provides
+        @IntoMap
+        @StringKey(VolumeTile.TILE_SPEC)
+        fun provideVolumeTileConfig(uiEventLogger: QsEventLogger): QSTileConfig =
+            QSTileConfig(
+                tileSpec = TileSpec.create(VolumeTile.TILE_SPEC),
+                uiConfig =
+                    QSTileUIConfig.Resource(
+                        iconRes = R.drawable.ic_qs_volume_panel,
+                        labelRes = R.string.quick_settings_volume_panel_label
+                    ),
+                instanceId = uiEventLogger.getNewInstanceId(),
+                category = TileCategory.UTILITIES,
+            )
+
+        @Provides
+        @IntoMap
+        @StringKey(SoundTile.TILE_SPEC)
+        fun provideSoundTileConfig(uiEventLogger: QsEventLogger): QSTileConfig =
+            QSTileConfig(
+                tileSpec = TileSpec.create(SoundTile.TILE_SPEC),
+                uiConfig =
+                    QSTileUIConfig.Resource(
+                        iconRes = R.drawable.ic_qs_ringer_audible,
+                        labelRes = R.string.quick_settings_sound_label
+                    ),
+                instanceId = uiEventLogger.getNewInstanceId(),
+                category = TileCategory.UTILITIES,
             )
 
         @Provides

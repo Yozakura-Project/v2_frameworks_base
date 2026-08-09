@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: The YozakuraOS Project
+     SPDX-License-Identifier: Apache-2.0
+
+     YozakuraOS cp118: strings and arrays for the ported Compass, Volume panel and
+     Sound quick settings tiles. Copied verbatim from the Infinity definitions and kept
+     in their own file so the ported tiles and the shared strings.xml stay untouched
+     (same approach as the cp117 On-The-Go strings).
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Compass tile -->
+    <string name="quick_settings_compass_label">Compass</string>
+    <string name="quick_settings_compass_init">Initializing…</string>
+    <string name="quick_settings_compass_value"><xliff:g id="degrees">%1$.0f</xliff:g>° <xliff:g id="direction">%2$s</xliff:g></string>
+    <string name="quick_settings_compass_N">N</string>
+    <string name="quick_settings_compass_NE">NE</string>
+    <string name="quick_settings_compass_E">E</string>
+    <string name="quick_settings_compass_SE">SE</string>
+    <string name="quick_settings_compass_S">S</string>
+    <string name="quick_settings_compass_SW">SW</string>
+    <string name="quick_settings_compass_W">W</string>
+    <string name="quick_settings_compass_NW">NW</string>
+
+    <string-array name="cardinal_directions">
+        <item>@string/quick_settings_compass_N</item>
+        <item>@string/quick_settings_compass_NE</item>
+        <item>@string/quick_settings_compass_E</item>
+        <item>@string/quick_settings_compass_SE</item>
+        <item>@string/quick_settings_compass_S</item>
+        <item>@string/quick_settings_compass_SW</item>
+        <item>@string/quick_settings_compass_W</item>
+        <item>@string/quick_settings_compass_NW</item>
+    </string-array>
+
+    <!-- Volume panel tile -->
+    <string name="quick_settings_volume_panel_label">Volume panel</string>
+
+    <!-- Sound (ringer mode) tile -->
+    <string name="quick_settings_sound_label">Sound</string>
+    <string name="quick_settings_sound_ring">Ring</string>
+    <string name="quick_settings_sound_vibrate">Vibrate</string>
+    <string name="quick_settings_sound_silent">Silent</string>
+</resources>

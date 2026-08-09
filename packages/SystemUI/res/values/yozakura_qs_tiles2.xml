@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: The YozakuraOS Project
+     SPDX-License-Identifier: Apache-2.0
+
+     YozakuraOS cp119: strings for the ported Weather, Screenshot, Language and
+     VPN tethering quick settings tiles. Copied verbatim from the Infinity definitions
+     and kept in their own file so the ported tiles and the shared strings.xml stay
+     untouched (same approach as cp117 and cp118).
+
+     ic_qs_weather and global_action_screenshot are already in the tree, and
+     ScreenshotTile reads ic_screenshot and global_action_screenshot from
+     com.android.internal.R, so none of those are repeated here.
+-->
+<resources>
+    <!-- Weather tile (reads the OmniJaws provider ported in cp68/cp69) -->
+    <string name="omnijaws_label_default">Weather</string>
+    <string name="omnijaws_service_error">Error loading weather data</string>
+    <string name="omnijaws_service_unknown">No weather data</string>
+    <string name="weather_condition_clear">Clear Sky</string>
+    <string name="weather_condition_clouds">Cloudy</string>
+    <string name="weather_condition_mist">Misty</string>
+    <string name="weather_condition_rain">Rainy</string>
+    <string name="weather_condition_snow">Snowy</string>
+    <string name="weather_condition_storm">Stormy</string>
+    <string name="weather_condition_wind">Windy</string>
+
+    <!-- Screenshot tile -->
+    <string name="screenshot_long_press">Long press - selected region</string>
+
+    <!-- Language tile -->
+    <string name="quick_settings_locale_label">Language</string>
+    <string name="quick_settings_locale_more_locales_toast">Configure multiple languages first</string>
+
+    <!-- VPN tethering tile -->
+    <string name="vpn_tethering_label">VPN tethering</string>
+</resources>

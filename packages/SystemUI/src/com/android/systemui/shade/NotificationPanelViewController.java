@@ -64,14 +64,20 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.RenderEffect;
 import android.graphics.Shader;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.Trace;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.MathUtils;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
@@ -81,12 +87,14 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.View.AccessibilityDelegate;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.WindowInsets;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.ImageView;
 
 import com.android.app.animation.Interpolators;
 import com.android.internal.annotations.VisibleForTesting;
@@ -115,6 +123,8 @@ import com.android.systemui.doze.DozeLog;
 import com.android.systemui.dump.DumpManager;
 import com.android.systemui.dump.DumpsysTableLogger;
 import com.android.systemui.fragments.FragmentService;
+import com.android.systemui.infinity.header.StatusBarHeaderMachine;
+import com.android.systemui.infinity.header.YozakuraFadingEdgeLayout;
 import com.android.systemui.keyguard.KeyguardUnlockAnimationController;
 import com.android.systemui.keyguard.domain.interactor.KeyguardClockInteractor;
 import com.android.systemui.keyguard.domain.interactor.KeyguardInteractor;
@@ -297,6 +307,41 @@ public final class NotificationPanelViewController implements
             new ShadeHeadsUpChangedListener();
     private final ConfigurationListener mConfigurationListener = new ConfigurationListener();
     private final ContentObserver mDoubleTapToSleepObserver;
+
+    // YozakuraOS cp121: QS header image. The machine picks the drawable (daylight pack,
+    // static drawable or a file); this controller only draws what it hands over.
+    private final ContentObserver mHeaderImageObserver;
+    private YozakuraFadingEdgeLayout mQsHeaderLayout;
+    private ImageView mQsHeaderImageView;
+    private StatusBarHeaderMachine mStatusBarHeaderMachine;
+    private Drawable mCurrentBackground;
+    private boolean mHeaderImageEnabled;
+    private int mHeaderImageHeight;
+    private int mBottomFadeHeight;
+    private int mHeaderImageShadow;
+    private int mOrientation = -1;
+    private float mShadeHeaderExpansion;
+
+    private final StatusBarHeaderMachine.IStatusBarHeaderMachineObserver mHeaderMachineObserver =
+            new StatusBarHeaderMachine.IStatusBarHeaderMachineObserver() {
+                @Override
+                public void updateHeader(Drawable headerImage, boolean force) {
+                    mView.post(() -> doUpdateStatusBarCustomHeader(headerImage, force));
+                }
+
+                @Override
+                public void disableHeader() {
+                    mView.post(() -> {
+                        mCurrentBackground = null;
+                        mQsHeaderImageView.setVisibility(View.GONE);
+                    });
+                }
+
+                @Override
+                public void refreshHeader() {
+                    mView.post(() -> doUpdateStatusBarCustomHeader(mCurrentBackground, true));
+                }
+            };
     private final StatusBarStateListener mStatusBarStateListener = new StatusBarStateListener();
     private final NotificationPanelView mView;
     private final VibratorHelper mVibratorHelper;
@@ -808,6 +853,12 @@ public final class NotificationPanelViewController implements
                                 config_dt2sGestureEnabledByDefault) ? 1 : 0) != 0;
             }
         };
+        mHeaderImageObserver = new ContentObserver(handler) {
+            @Override
+            public void onChange(boolean selfChange) {
+                updateHeaderImageSettings();
+            }
+        };
         mConversationNotificationManager = conversationNotificationManager;
         mScreenOffAnimationController = screenOffAnimationController;
         mUnlockedScreenOffAnimationController = unlockedScreenOffAnimationController;
@@ -869,6 +920,9 @@ public final class NotificationPanelViewController implements
                     }
                 });
         mAlternateBouncerInteractor = alternateBouncerInteractor;
+        mQsHeaderLayout = mView.requireViewById(R.id.layout_header);
+        mQsHeaderImageView = mView.requireViewById(R.id.qs_header_image_view);
+        mStatusBarHeaderMachine = new StatusBarHeaderMachine(context);
         dumpManager.registerDumpable(this);
     }
 
@@ -1947,6 +2001,9 @@ public final class NotificationPanelViewController implements
         updateHeader();
         updatePanelExpanded();
         updateGestureExclusionRect();
+        if (mHeaderImageEnabled) {
+            mView.post(() -> updateHeaderImage());
+        }
         if (DEBUG_DRAWABLE) {
             mView.invalidate();
         }
@@ -3566,6 +3623,10 @@ public final class NotificationPanelViewController implements
             if (ShadeWindowGoesAround.isEnabled()) {
                 updateResources();
             }
+            if (mHeaderImageEnabled) {
+                mOrientation = newConfig.orientation;
+                mView.post(() -> updateHeaderImage());
+            }
         }
 
         @Override
@@ -3721,6 +3782,18 @@ public final class NotificationPanelViewController implements
                     LineageSettings.System.DOUBLE_TAP_SLEEP_GESTURE), false,
                     mDoubleTapToSleepObserver);
             mDoubleTapToSleepObserver.onChange(true);
+            mStatusBarHeaderMachine.addObserver(mHeaderMachineObserver);
+            mStatusBarHeaderMachine.updateEnablement();
+            mContentResolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CUSTOM_HEADER), false,
+                    mHeaderImageObserver, UserHandle.USER_ALL);
+            mContentResolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CUSTOM_HEADER_HEIGHT), false,
+                    mHeaderImageObserver, UserHandle.USER_ALL);
+            mContentResolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CUSTOM_HEADER_SHADOW), false,
+                    mHeaderImageObserver, UserHandle.USER_ALL);
+            mHeaderImageObserver.onChange(true);
             // Theme might have changed between inflating this view and attaching it to the
             // window, so
             // force a call to onThemeChanged
@@ -3732,6 +3805,8 @@ public final class NotificationPanelViewController implements
         @Override
         public void onViewDetachedFromWindow(View v) {
             mContentResolver.unregisterContentObserver(mDoubleTapToSleepObserver);
+            mContentResolver.unregisterContentObserver(mHeaderImageObserver);
+            mStatusBarHeaderMachine.removeObserver(mHeaderMachineObserver);
             mFragmentService.getFragmentHostManager(mView)
                     .removeTagListener(QS.TAG, mQsController.getQsFragmentListener());
             mStatusBarStateController.removeCallback(mStatusBarStateListener);
@@ -3759,6 +3834,9 @@ public final class NotificationPanelViewController implements
             mQsController.handleShadeLayoutChanged(oldMaxHeight);
             updateExpandedHeight(getExpandedHeight());
             updateHeader();
+            if (mHeaderImageEnabled) {
+                mView.post(() -> updateHeaderImage());
+            }
 
             // If we are running a size change animation, the animation takes care of the height
             // of the container. However, if we are not animating, we always need to make the QS
@@ -4374,6 +4452,145 @@ public final class NotificationPanelViewController implements
                 return true;
             }
             return super.performAccessibilityAction(host, action, args);
+        }
+    }
+
+    // YozakuraOS cp121: QS header image.
+    //
+    // Infinity subscribes to these three settings through TunerService, which this
+    // controller does not use at all, so they are read from a ContentObserver instead -
+    // the same shape as the double tap to sleep setting above it and as the status bar
+    // logo from cp112. Everything below this point is Infinity's logic unchanged, bar the
+    // fade, which is set on YozakuraFadingEdgeLayout rather than on the missing library.
+    private void updateHeaderImageSettings() {
+        mHeaderImageEnabled = Settings.System.getIntForUser(mContentResolver,
+                Settings.System.STATUS_BAR_CUSTOM_HEADER, 0, UserHandle.USER_CURRENT) != 0;
+        mHeaderImageHeight = Settings.System.getIntForUser(mContentResolver,
+                Settings.System.STATUS_BAR_CUSTOM_HEADER_HEIGHT, 142, UserHandle.USER_CURRENT);
+        mBottomFadeHeight = (int) Math.round(mHeaderImageHeight * 0.555);
+        mHeaderImageShadow = Settings.System.getIntForUser(mContentResolver,
+                Settings.System.STATUS_BAR_CUSTOM_HEADER_SHADOW, 0, UserHandle.USER_CURRENT);
+        if (mHeaderImageEnabled) {
+            mOrientation = mResources.getConfiguration().orientation;
+            mView.post(() -> {
+                // A new height or shadow has to land on a header that is already up, so
+                // apply the size here rather than only on the way to VISIBLE, and clear
+                // the remembered expansion so the alpha is recomputed for the new shadow.
+                applyHeaderImageSize();
+                mShadeHeaderExpansion = -1f;
+                updateHeaderImage();
+            });
+        } else {
+            mView.post(() -> {
+                mQsHeaderLayout.setVisibility(View.GONE);
+                stopHeaderAnimIfRunning();
+            });
+        }
+    }
+
+    private void doUpdateStatusBarCustomHeader(Drawable drawable, boolean force) {
+        if (drawable != null) {
+            mQsHeaderImageView.setVisibility(View.VISIBLE);
+            mCurrentBackground = drawable;
+            setNotificationPanelHeaderBackground(drawable, force);
+        } else {
+            mCurrentBackground = null;
+            mQsHeaderImageView.setVisibility(View.GONE);
+        }
+        if (mHeaderImageEnabled) {
+            updateHeaderImage();
+        }
+    }
+
+    private void applyHeaderImageSize() {
+        ViewGroup.LayoutParams params = mQsHeaderLayout.getLayoutParams();
+        params.height = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                mHeaderImageHeight,
+                mView.getResources().getDisplayMetrics());
+        mQsHeaderLayout.setLayoutParams(params);
+
+        mQsHeaderLayout.setBottomFadeSize((int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                mBottomFadeHeight,
+                mView.getResources().getDisplayMetrics()));
+    }
+
+    private void updateHeaderImage() {
+        // Infinity reads ShadeHeaderController.getShadeExpandedFraction() here. In this
+        // tree that setter only assigns while qsVisible, so the value never returns to 0
+        // - dumpsys reports 1.0 with the shade shut. Reading it would pin the image
+        // opaque, keep the layout VISIBLE for ever and so freeze the height and the
+        // shadow at whatever they were the first time it appeared. The panel's own
+        // expansion is the quantity Infinity is reaching for and it does move: 0 shut,
+        // 1 open, everything in between while dragging.
+        float shadeHeaderExpansion = getExpandedFraction();
+        if (shadeHeaderExpansion > 0f
+                && mOrientation != Configuration.ORIENTATION_LANDSCAPE
+                && mCurrentBackground != null && mQsHeaderImageView.getDrawable() != null) {
+
+            if (mQsHeaderLayout.getVisibility() != View.VISIBLE) {
+                applyHeaderImageSize();
+                mQsHeaderLayout.setVisibility(View.VISIBLE);
+            }
+            if (mShadeHeaderExpansion != shadeHeaderExpansion) {
+                mShadeHeaderExpansion = shadeHeaderExpansion;
+                mQsHeaderImageView.setImageAlpha(
+                        (int) (mShadeHeaderExpansion * (255 - mHeaderImageShadow)));
+            }
+
+            startHeaderAnimIfPossible();
+        } else {
+            mQsHeaderLayout.setVisibility(View.GONE);
+            stopHeaderAnimIfRunning();
+        }
+    }
+
+    private void stopHeaderAnimIfRunning() {
+        Drawable drawable = mQsHeaderImageView.getDrawable();
+        if (drawable instanceof Animatable anim && anim.isRunning()) {
+            anim.stop();
+        }
+        if (drawable != null) {
+            drawable.setVisible(false, false);
+        }
+    }
+
+    private void startHeaderAnimIfPossible() {
+        Drawable drawable = mQsHeaderImageView.getDrawable();
+        if (drawable == null) return;
+
+        // Only animate when we are actually showing it
+        if (mQsHeaderLayout.getVisibility() != View.VISIBLE
+                || mQsHeaderImageView.getVisibility() != View.VISIBLE) {
+            return;
+        }
+
+        drawable.setVisible(true, true);
+        if (drawable instanceof Animatable anim && !anim.isRunning()) {
+            anim.start();
+        }
+    }
+
+    private void setNotificationPanelHeaderBackground(Drawable dw, boolean force) {
+        // Stop previous anim, if any, before swapping
+        stopHeaderAnimIfRunning();
+
+        // Avoid TransitionDrawable if new is animatable, but do not start here
+        if (dw instanceof Animatable) {
+            mQsHeaderImageView.setImageDrawable(dw);
+            return;
+        }
+
+        Drawable current = mQsHeaderImageView.getDrawable();
+        if (current != null && !force && !(current instanceof Animatable)) {
+            Drawable[] layers = new Drawable[]{current, dw};
+            TransitionDrawable transitionDrawable = new TransitionDrawable(layers);
+            transitionDrawable.setCrossFadeEnabled(true);
+            mQsHeaderImageView.setImageDrawable(transitionDrawable);
+            transitionDrawable.startTransition(1000);
+        } else {
+            mQsHeaderImageView.setImageDrawable(dw);
         }
     }
 }

@@ -5481,6 +5481,12 @@ public final class Settings {
         public static final String STATUS_BAR_CUSTOM_HEADER_SHADOW = "status_bar_custom_header_shadow";
 
         /**
+         * Height of the custom header image, in dp
+         * @hide
+         */
+        public static final String STATUS_BAR_CUSTOM_HEADER_HEIGHT = "status_bar_custom_header_height";
+
+        /**
          * The daylight header pack in use
          * @hide
          */

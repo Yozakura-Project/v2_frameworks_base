@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: The YozakuraOS Project
+     SPDX-License-Identifier: Apache-2.0
+
+     YozakuraOS cp120: strings for the ported DNS, Sleep mode, CPU info, FPS info,
+     Switch data card and Preferred network tiles. Copied verbatim from the Infinity
+     definitions, in their own file so the ported tiles and the shared strings.xml stay
+     untouched (same approach as cp117-cp119).
+
+     Not repeated here: DnsTile reads private_dns_mode_* and
+     select_private_dns_configuration_title from com.android.settingslib.R, which this
+     tree already provides, and the night/until secondary labels and tile_unavailable
+     are already in SystemUI.
+-->
+<resources>
+    <!-- DNS tile has no strings of its own; it uses the SettingsLib ones. -->
+
+    <!-- Sleep mode tile -->
+    <string name="quick_settings_sleep_mode_label">Sleep Mode</string>
+
+    <!-- CPU / FPS info tiles -->
+    <string name="quick_settings_cpuinfo_label">CPU Info</string>
+    <string name="quick_settings_fpsinfo_label">FPS Info</string>
+    <!-- Device specific: the node FPSInfoService reads. The value below is the
+         Infinity default and matches sweet's SDE display driver. -->
+    <string name="config_fpsInfoSysNode" translatable="false">/sys/class/drm/sde-crtc-0/measured_fps</string>
+
+    <!-- Switch data card tile -->
+    <string name="qs_data_switch_label">Switch data card</string>
+
+    <!-- Preferred network tile -->
+    <string name="qs_preferred_network_label">Preferred network</string>
+    <string name="qs_preferred_network_lte">4G / LTE</string>
+    <string name="qs_preferred_network_nr">5G / NR</string>
+    <string name="qs_preferred_network_unsupported">Unsupported</string>
+</resources>

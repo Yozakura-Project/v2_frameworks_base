@@ -3046,6 +3046,18 @@ public final class Settings {
     public static final String ACTION_APP_PERMISSIONS_SETTINGS =
             "android.settings.APP_PERMISSIONS_SETTINGS";
 
+    /**
+     * Activity Action: Show private DNS settings.
+     *
+     * Input: Nothing.
+     * Output: Nothing
+     *
+     * @hide
+     */
+    @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
+    public static final String ACTION_PRIVATE_DNS_SETTING =
+            "com.android.settings.PRIVATE_DNS_SETTINGS";
+
     // End of Intent actions for Settings
 
     /**
@@ -13848,6 +13860,44 @@ public final class Settings {
          */
         public static final String OTP_NOTIFICATION_REDACTION_LOCK_TIME =
                 "otp_redaction_lock_time";
+
+        /**
+         * Control whether the process CPU info meter should be shown.
+         * @hide
+         */
+        public static final String SHOW_CPU_OVERLAY = "show_cpu_overlay";
+
+        /**
+         * Control whether the process FPS info meter should be shown.
+         * @hide
+         */
+        public static final String SHOW_FPS_OVERLAY = "show_fps_overlay";
+
+        /**
+         * Whether to enable Sleep Mode
+         * @hide
+         */
+        public static final String SLEEP_MODE_ENABLED = "sleep_mode_enabled";
+
+        /**
+         * Indicates whether Sleep Mode turns on automatically
+         * 0 = disabled (default)
+         * 1 = from sunset to sunrise
+         * 2 = custom time
+         * 3 = from sunset till a time
+         * 4 = from a time till sunrise
+         * @hide
+         */
+        public static final String SLEEP_MODE_AUTO_MODE = "sleep_mode_auto_mode";
+
+        /**
+         * The custom time {@link SLEEP_MODE_ENABLED} should be on at
+         * Only relevant when {@link SLEEP_MODE_AUTO_MODE} is set to 2 and above
+         * 0 = Disabled (default)
+         * format: HH:mm,HH:mm (since,till)
+         * @hide
+         */
+        public static final String SLEEP_MODE_AUTO_TIME = "sleep_mode_auto_time";
 
         /**
          * These entries are considered common between the personal and the managed profile,

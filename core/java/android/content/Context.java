@@ -5534,6 +5534,17 @@ public abstract class Context {
 
     /**
      * Use with {@link #getSystemService(String)} to retrieve a
+     * {@link android.pocket.PocketManager} for accessing and listening to device pocket
+     * state.
+     *
+     * @hide
+     * @see #getSystemService
+     * @see android.pocket.PocketManager
+     */
+    public static final String POCKET_SERVICE = "pocket";
+
+    /**
+     * Use with {@link #getSystemService(String)} to retrieve a
      * {@link android.hardware.fingerprint.FingerprintManager} for handling management
      * of fingerprints.
      *

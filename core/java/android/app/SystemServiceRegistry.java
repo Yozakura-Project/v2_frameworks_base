@@ -221,6 +221,8 @@ import android.os.SystemVibratorManager;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.Vibrator;
+import android.pocket.IPocketService;
+import android.pocket.PocketManager;
 import android.os.VibratorManager;
 import android.os.flagging.ConfigInfrastructureFrameworkInitializer;
 import android.os.health.SystemHealthManager;
@@ -1133,6 +1135,18 @@ public final class SystemServiceRegistry {
                         return new AuthenticationPolicyManager(ctx.getOuterContext(), service);
                     }
                 });
+
+        registerService(Context.POCKET_SERVICE, PocketManager.class,
+                new CachedServiceFetcher<PocketManager>() {
+                    @Override
+                    public PocketManager createService(ContextImpl ctx) {
+                        if (!ctx.getResources().getBoolean(R.bool.config_pocketModeSupported)) {
+                            return null;
+                        }
+                        IBinder binder = ServiceManager.getService(Context.POCKET_SERVICE);
+                        IPocketService service = IPocketService.Stub.asInterface(binder);
+                        return new PocketManager(ctx.getOuterContext(), service);
+                    }});
 
         registerService(Context.TV_INTERACTIVE_APP_SERVICE, TvInteractiveAppManager.class,
                 new CachedServiceFetcher<TvInteractiveAppManager>() {

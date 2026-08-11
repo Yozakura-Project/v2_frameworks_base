@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2021 Wave-OS
+     SPDX-FileCopyrightText: 2024 Paranoid Android
+     SPDX-FileCopyrightText: The YozakuraOS Project
+     SPDX-License-Identifier: Apache-2.0
+
+     YozakuraOS cp122a: pocket mode resources, from Infinity's infinity_config /
+     infinity_dimens / infinity_styles / infinity_strings. Those files do not exist in this
+     tree, so the feature's resources are kept together in one file instead of spread across
+     four. Values are unchanged.
+
+     config_pocketModeSupported is what SystemServer gates PocketService on, and what
+     SystemServiceRegistry gates the manager on. It reads true here as it does upstream, but
+     nothing starts the service until cp122b adds that call, so cp122a leaves boot untouched.
+-->
+<resources>
+
+    <!-- Whether the device supports pocket mode. -->
+    <bool name="config_pocketModeSupported">true</bool>
+    <!-- Whether pocket detection may also use the light sensor. -->
+    <bool name="config_pocketUseLightSensor">true</bool>
+
+    <!-- Defines the sysfs attribute path used by pocket bridge to communicate pocket state
+         to the pocket judge kernel driver. Empty means no bridge, and SystemServer then
+         never starts PocketBridgeService. -->
+    <string name="config_pocketBridgeSysfsInpocket" translatable="false"></string>
+
+    <!-- Defines a custom OEM sensor for pocket detection. -->
+    <string name="config_pocketJudgeVendorSensorName" translatable="false"></string>
+    <item name="config_pocketJudgeVendorSensorValue" format="float" type="dimen">1.0</item>
+    <string name="config_pocketJudgeVendorProximitySensorName" translatable="false"></string>
+
+    <!-- Pocket lock view -->
+    <dimen name="pocket_mode_illustration_width">175dp</dimen>
+    <dimen name="pocket_mode_illustration_height">350dp</dimen>
+    <dimen name="pocket_mode_illustration_margin_top">56dp</dimen>
+    <dimen name="pocket_mode_title_size">24sp</dimen>
+    <dimen name="pocket_mode_title_margin_horizontal">56dp</dimen>
+    <dimen name="pocket_mode_instructions_container_margin_horizontal">24dp</dimen>
+    <dimen name="pocket_mode_instructions_container_margin_top">56dp</dimen>
+    <dimen name="pocket_mode_instructions_title_size">16sp</dimen>
+    <dimen name="pocket_mode_instructions_steps_margin_top">8dp</dimen>
+    <dimen name="pocket_mode_instructions_step_size">14sp</dimen>
+    <dimen name="pocket_mode_instructions_step_margin_top">8dp</dimen>
+
+    <style name="PocketModeTitle">
+        <item name="android:textSize">@dimen/pocket_mode_title_size</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:alpha">0.85</item>
+    </style>
+
+    <style name="PocketModeInstructionsTitle">
+        <item name="android:textSize">@dimen/pocket_mode_instructions_title_size</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:alpha">0.5</item>
+    </style>
+
+    <style name="PocketModeInstructionStep">
+        <item name="android:textSize">@dimen/pocket_mode_instructions_step_size</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:alpha">0.5</item>
+    </style>
+
+    <string name="pocket_mode_title">Pocket mode is active</string>
+    <string name="pocket_mode_illustration_description">Illustration of phone in pocket</string>
+    <string name="pocket_mode_instructions_header">To use your phone:</string>
+    <string name="pocket_mode_instruction_step1">1. Ensure the blue area (proximity sensor) shown above is unobstructed and free from dirt or dust.</string>
+    <string name="pocket_mode_instruction_step2">2. Press and hold the power button to exit pocket mode.</string>
+
+</resources>

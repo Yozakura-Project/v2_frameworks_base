@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: The YozakuraOS Project
+     SPDX-License-Identifier: Apache-2.0
+
+     YozakuraOS java symbols, kept out of the 6000-line AOSP symbols.xml so upstream merges
+     do not have to resolve them. Everything system code reaches through
+     com.android.internal.R has to be listed somewhere like this.
+-->
+<resources>
+
+    <!-- cp122a: pocket mode. PocketLock inflates the layout; PocketService and
+         SystemServer read the configs. -->
+    <java-symbol type="layout" name="pocket_lock_view" />
+    <java-symbol type="bool" name="config_pocketModeSupported" />
+    <java-symbol type="bool" name="config_pocketUseLightSensor" />
+    <java-symbol type="string" name="config_pocketBridgeSysfsInpocket" />
+    <java-symbol type="string" name="config_pocketJudgeVendorSensorName" />
+    <java-symbol type="dimen" name="config_pocketJudgeVendorSensorValue" />
+    <java-symbol type="string" name="config_pocketJudgeVendorProximitySensorName" />
+
+</resources>

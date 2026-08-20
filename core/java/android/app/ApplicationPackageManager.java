@@ -16,6 +16,8 @@
 
 package android.app;
 
+import android.security.pif.PlayIntegritySpoofService;
+
 import static android.app.PropertyInvalidatedCache.MODULE_SYSTEM;
 import static android.app.admin.DevicePolicyResources.Drawables.Style.SOLID_COLORED;
 import static android.app.admin.DevicePolicyResources.Drawables.Style.SOLID_NOT_COLORED;
@@ -845,6 +847,12 @@ public class ApplicationPackageManager extends PackageManager {
         //    * IPC-retrieved system features (lazily cached, requires per-feature IPC)
         // TODO(b/375000483): Refactor all of this logic, including flag queries, into
         // the SystemFeaturesCache class after initial rollout and validation.
+        PlayIntegritySpoofService pifService = PlayIntegritySpoofService.getInstance();
+        Boolean spoofedResult = pifService.hasSystemFeature(name, version);
+        if (spoofedResult != null) {
+            return spoofedResult;
+        }
+
         Boolean maybeHasSystemFeature = RoSystemFeatures.maybeHasFeature(name, version);
         if (maybeHasSystemFeature != null) {
             return maybeHasSystemFeature;

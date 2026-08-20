@@ -460,6 +460,7 @@ import com.android.server.SystemServiceManager;
 import com.android.server.ThreadPriorityBooster;
 import com.android.server.UiThread;
 import com.android.server.Watchdog;
+import com.android.server.spoof.AxSpoofManager;
 import com.android.server.am.LowMemDetector.MemFactor;
 import com.android.server.am.psc.ProcessRecordInternal;
 import com.android.server.appop.AppOpsService;
@@ -9022,6 +9023,9 @@ public class ActivityManagerService extends IActivityManager.Stub
     /**
      * Ready. Set. Go!
      */
+    /** YozakuraOS: TrickyStore spoof-config bridge, started in systemReady(). */
+    private volatile AxSpoofManager mAxSpoofManager;
+
     public void systemReady(final Runnable goingCallback, @NonNull TimingsTraceAndSlog t) {
         t.traceBegin("PhaseActivityManagerReady");
         mSystemServiceManager.preSystemReady();
@@ -9047,6 +9051,15 @@ public class ActivityManagerService extends IActivityManager.Stub
             mAppRestrictionController.onSystemReady();
             mSystemReady = true;
             t.traceEnd();
+        }
+
+        // YozakuraOS: start the TrickyStore spoof-config bridge once the
+        // system is ready so the per-process keystore2 hook can read it.
+        try {
+            mAxSpoofManager = new AxSpoofManager(mContext);
+            mAxSpoofManager.systemReady();
+        } catch (Throwable e) {
+            Slog.w(TAG, "Failed to start AxSpoofManager", e);
         }
 
         try {
@@ -19942,5 +19955,47 @@ public class ActivityManagerService extends IActivityManager.Stub
             return;
         }
         r.getWindowProcessController().setOptimizationInfo(compilerFilter, compilationReason);
+    }
+
+    @Override
+    public String getSpoofPifConfig() {
+        final AxSpoofManager m = mAxSpoofManager;
+        return m != null ? m.getPifConfig() : null;
+    }
+
+    @Override
+    public String getSpoofPifSpoofPhotos() {
+        final AxSpoofManager m = mAxSpoofManager;
+        return m != null ? m.getPifSpoofPhotos() : null;
+    }
+
+    @Override
+    public String getSpoofPifEnabled() {
+        final AxSpoofManager m = mAxSpoofManager;
+        return m != null ? m.getPifEnabled() : null;
+    }
+
+    @Override
+    public String getSpoofGamePropsConfig() {
+        final AxSpoofManager m = mAxSpoofManager;
+        return m != null ? m.getGamePropsConfig() : null;
+    }
+
+    @Override
+    public String getSpoofTrickyStoreTarget() {
+        final AxSpoofManager m = mAxSpoofManager;
+        return m != null ? m.getTrickyStoreTarget() : null;
+    }
+
+    @Override
+    public String getSpoofTrickyStoreKeyBox() {
+        final AxSpoofManager m = mAxSpoofManager;
+        return m != null ? m.getTrickyStoreKeyBox() : null;
+    }
+
+    @Override
+    public String getSpoofTrickyStorePatch() {
+        final AxSpoofManager m = mAxSpoofManager;
+        return m != null ? m.getTrickyStorePatch() : null;
     }
 }

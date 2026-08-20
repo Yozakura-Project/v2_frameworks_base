@@ -1056,4 +1056,27 @@ interface IActivityManager {
      */
     oneway void reportOptimizationInfo(in IBinder app, in String compilerFilter,
             in String compilationReason);
+
+    /**
+     * PlayIntegrityFix / GameProps spoof configuration bridge.
+     * @hide
+     */
+    String getSpoofPifConfig();
+    /** @hide */
+    String getSpoofPifSpoofPhotos();
+    /** @hide */
+    String getSpoofPifEnabled();
+    /** @hide */
+    String getSpoofGamePropsConfig();
+
+    /**
+     * TrickyStore spoof configuration bridge (read by the per-process keystore2
+     * hook in android.security.trickystore.TrickyStoreService).
+     * @hide
+     */
+    String getSpoofTrickyStoreTarget();
+    /** @hide */
+    String getSpoofTrickyStoreKeyBox();
+    /** @hide */
+    String getSpoofTrickyStorePatch();
 }

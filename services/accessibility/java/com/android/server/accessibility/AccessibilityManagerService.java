@@ -120,6 +120,7 @@ import android.hardware.input.KeyGestureEvent;
 import android.media.AudioManagerInternal;
 import android.net.Uri;
 import android.os.Binder;
+import com.android.internal.util.yozakura.HideAppListUtils;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -1525,6 +1526,15 @@ public class AccessibilityManagerService extends IAccessibilityManager.Stub
         if (mTraceManager.isA11yTracingEnabledForTypes(FLAGS_ACCESSIBILITY_MANAGER)) {
             mTraceManager.logTrace(LOG_TAG + ".getInstalledAccessibilityServiceList",
                     FLAGS_ACCESSIBILITY_MANAGER, "userId=" + userId);
+        }
+
+        // YozakuraOS (HMA, from Matrixx): hide the installed accessibility
+        // service list from packages the user chose to hide.
+        final String[] hmaPkgs = mContext.getPackageManager()
+                .getPackagesForUid(Binder.getCallingUid());
+        if (hmaPkgs != null && hmaPkgs.length > 0
+                && HideAppListUtils.shouldHideAppList(mContext, hmaPkgs[0])) {
+            return ParceledListSlice.emptyList();
         }
 
         final int resolvedUserId;

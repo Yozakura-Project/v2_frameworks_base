@@ -96,6 +96,7 @@ import android.util.AndroidException;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
+import com.android.internal.util.yozakura.HideAppListUtils;
 import android.util.MemoryIntArray;
 import android.util.Slog;
 import android.view.Display;
@@ -7558,6 +7559,12 @@ public final class Settings {
         @UnsupportedAppUsage
         public static String getStringForUser(ContentResolver resolver, String name,
                 @CanBeCURRENT @UserIdInt int userId) {
+            // YozakuraOS (HMA, from Matrixx): hide the enabled accessibility
+            // services value from packages the user chose to hide.
+            if (ENABLED_ACCESSIBILITY_SERVICES.equals(name)
+                    && HideAppListUtils.shouldHideAppList(resolver, resolver.getPackageName())) {
+                return "";
+            }
             if (MOVED_TO_GLOBAL.contains(name)) {
                 Log.w(TAG, "Setting " + name + " has moved from android.provider.Settings.Secure"
                         + " to android.provider.Settings.Global.");
@@ -14144,6 +14151,12 @@ public final class Settings {
          * @hide
          */
         public static final String SPOOF_TRICKYSTORE_PATCH = "spoof_trickystore_patch";
+
+        /**
+         * Comma-separated list of packages hidden from app-list detection (HMA).
+         * @hide
+         */
+        public static final String HIDE_APPLIST = "hide_applist";
     }
 
     /**

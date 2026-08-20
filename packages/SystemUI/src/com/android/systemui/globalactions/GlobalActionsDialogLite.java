@@ -1059,6 +1059,17 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
                 return;
             }
             mUiEventLogger.log(GlobalActionsEvent.GA_SHUTDOWN_PRESS);
+            // YozakuraOS: require authentication before powering off when
+            // power_off_verify is enabled (ported from Matrixx / ProjectMatrixx).
+            final int userId = Binder.getCallingUserHandle().getIdentifier();
+            final boolean powerOffVerify = mSecureSettings.getIntForUser(
+                    "power_off_verify", 0, userId) != 0;
+            if (powerOffVerify && mKeyguardStateController.isMethodSecure()
+                    && mKeyguardStateController.isShowing()) {
+                mActivityStarter.postQSRunnableDismissingKeyguard(
+                        () -> mWindowManagerFuncs.shutdown());
+                return;
+            }
             // shutdown by making sure radio and power are handled accordingly.
             mWindowManagerFuncs.shutdown();
         }

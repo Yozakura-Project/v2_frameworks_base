@@ -32,6 +32,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.android.app.tracing.coroutines.launchTraced as launch
 import com.android.settingslib.graph.SignalDrawable
 import com.android.systemui.Flags.statusBarStaticInoutIndicators
+import com.android.systemui.statusbar.connectivity.ThemeIconController
 import com.android.systemui.common.ui.binder.IconViewBinder
 import com.android.systemui.lifecycle.repeatWhenAttached
 import com.android.systemui.plugins.DarkIconDispatcher
@@ -158,8 +159,15 @@ object MobileIconBinder {
                                         packedSignalDrawableState = packedSignalDrawableState,
                                         shouldRequestLayout = shouldRequestLayout,
                                     )
-                                    iconView.setImageDrawable(mobileDrawable)
-                                    mobileDrawable.level = packedSignalDrawableState
+                                    val themedDrawable = ThemeIconController
+                                        .getThemedSignalIcon(
+                                            view.context, newIcon.level, newIcon.numberOfLevels)
+                                    if (themedDrawable != null) {
+                                        iconView.setImageDrawable(themedDrawable)
+                                    } else {
+                                        iconView.setImageDrawable(mobileDrawable)
+                                        mobileDrawable.level = packedSignalDrawableState
+                                    }
                                     viewModel.verboseLogger?.logBinderSignalIconResult(
                                         parentView = view,
                                         subId = viewModel.subscriptionId,

@@ -6606,6 +6606,12 @@ public abstract class Context {
     public static final String OVERLAY_SERVICE = "overlay";
 
     /**
+     * Use with {@link #getSystemService(String)} to retrieve the theme engine.
+     * @hide
+     */
+    public static final String THEME_ENGINE_SERVICE = "theme_engine";
+
+    /**
      * Use with {@link #getSystemService(String)} to retrieve a {@link ThemeManager} for theme
      * management.
      *

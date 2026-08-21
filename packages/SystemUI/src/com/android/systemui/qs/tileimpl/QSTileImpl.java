@@ -760,6 +760,11 @@ public abstract class QSTileImpl<TState extends State> implements QSTile, Lifecy
             return icon;
         }
 
+        // Yozakura(ThemeEngine): invalidate cached icons so themed icon packs re-render
+        public static synchronized void clearCache() {
+            ICONS.clear();
+        }
+
         @Override
         public Drawable getDrawable(Context context) {
             return context.getDrawable(mResId);

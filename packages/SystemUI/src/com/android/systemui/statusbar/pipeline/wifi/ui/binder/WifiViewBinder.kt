@@ -25,6 +25,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.android.app.tracing.coroutines.launchTraced as launch
 import com.android.systemui.Flags.statusBarStaticInoutIndicators
+import com.android.systemui.statusbar.connectivity.ThemeIconController
 import com.android.systemui.common.ui.binder.IconViewBinder
 import com.android.systemui.lifecycle.repeatWhenAttached
 import com.android.systemui.res.R
@@ -102,7 +103,13 @@ object WifiViewBinder {
                     viewModel.wifiIcon.collect { wifiIcon ->
                         view.isVisible = wifiIcon is WifiIcon.Visible
                         if (wifiIcon is WifiIcon.Visible) {
-                            IconViewBinder.bind(wifiIcon.icon, iconView)
+                            val themedDrawable = ThemeIconController
+                                .getThemedWifiIcon(view.context, wifiIcon.res)
+                            if (themedDrawable != null) {
+                                iconView.setImageDrawable(themedDrawable)
+                            } else {
+                                IconViewBinder.bind(wifiIcon.icon, iconView)
+                            }
                         }
                     }
                 }

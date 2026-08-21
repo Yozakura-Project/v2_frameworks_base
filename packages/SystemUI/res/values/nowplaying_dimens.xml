@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="nowplaying_icon_padding_compact">4dp</dimen>
+    <dimen name="nowplaying_icon_padding_normal">8dp</dimen>
+    <dimen name="nowplaying_title_artist_gap">4dp</dimen>
+</resources>

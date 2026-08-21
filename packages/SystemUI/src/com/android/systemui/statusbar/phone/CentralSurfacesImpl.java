@@ -84,6 +84,7 @@ import android.view.ViewParent;
 import android.widget.FrameLayout;
 import com.android.systemui.pulse.PulseViewController;
 import com.android.systemui.edgelight.EdgeLightViewController;
+import com.android.systemui.nowplaying.NowPlayingViewController;
 import com.android.systemui.charging.ChargingAnimationViewController;
 import android.view.WindowInsets;
 import android.view.WindowManager;
@@ -427,6 +428,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             mNotificationShadeWindowViewControllerLazy;
     private final PulseViewController mPulseViewController;
     private final EdgeLightViewController mEdgeLightViewController;
+    private final NowPlayingViewController mNowPlayingViewController;
     private final ChargingAnimationViewController mChargingAnimationViewController;
     private final DozeParameters mDozeParameters;
     private final Lazy<BiometricUnlockController> mBiometricUnlockControllerLazy;
@@ -674,6 +676,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
             Lazy<NotificationShadeWindowViewController> notificationShadeWindowViewControllerLazy,
             PulseViewController pulseViewController,
             EdgeLightViewController edgeLightViewController,
+            NowPlayingViewController nowPlayingViewController,
             ChargingAnimationViewController chargingAnimationViewController,
             TopUiController topUiController,
             NotificationStackScrollLayoutController notificationStackScrollLayoutController,
@@ -786,6 +789,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         mNotificationShadeWindowViewControllerLazy = notificationShadeWindowViewControllerLazy;
         mPulseViewController = pulseViewController;
         mEdgeLightViewController = edgeLightViewController;
+        mNowPlayingViewController = nowPlayingViewController;
         mChargingAnimationViewController = chargingAnimationViewController;
         mStackScrollerController = notificationStackScrollLayoutController;
         mStackScroller = mStackScrollerController.getView();
@@ -3373,6 +3377,11 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces {
         }
         detachFromParent(mEdgeLightViewController.getEdgeLightView());
         container.addView(mEdgeLightViewController.getEdgeLightView(),
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT));
+        detachFromParent(mNowPlayingViewController.getNowPlayingView());
+        container.addView(mNowPlayingViewController.getNowPlayingView(),
                 new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));

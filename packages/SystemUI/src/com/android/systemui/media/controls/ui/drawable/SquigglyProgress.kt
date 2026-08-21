@@ -127,6 +127,9 @@ class SquigglyProgress : Drawable() {
                 }
         }
 
+    // Yozakura(NowPlaying): when false, suppress drawing the remaining/unfilled line segment
+    var drawRemainingLine = true
+
     override fun draw(canvas: Canvas) {
         traceSection("SquigglyProgress#draw") { drawTraced(canvas) }
     }
@@ -199,17 +202,19 @@ class SquigglyProgress : Drawable() {
         canvas.drawPath(path, wavePaint)
         canvas.restore()
 
-        if (transitionEnabled) {
-            // If there's a smooth transition, we draw the rest of the
-            // path in a different color (using different clip params)
-            canvas.save()
-            canvas.clipRect(totalProgressPx, -1f * clipTop, totalWidth, clipTop)
-            canvas.drawPath(path, linePaint)
-            canvas.restore()
-        } else {
-            // No transition, just draw a flat line to the end of the region.
-            // The discontinuity is hidden by the progress bar thumb shape.
-            canvas.drawLine(totalProgressPx, 0f, totalWidth, 0f, linePaint)
+        if (drawRemainingLine) {
+            if (transitionEnabled) {
+                // If there's a smooth transition, we draw the rest of the
+                // path in a different color (using different clip params)
+                canvas.save()
+                canvas.clipRect(totalProgressPx, -1f * clipTop, totalWidth, clipTop)
+                canvas.drawPath(path, linePaint)
+                canvas.restore()
+            } else {
+                // No transition, just draw a flat line to the end of the region.
+                // The discontinuity is hidden by the progress bar thumb shape.
+                canvas.drawLine(totalProgressPx, 0f, totalWidth, 0f, linePaint)
+            }
         }
 
         // Draw round line cap at the beginning of the wave

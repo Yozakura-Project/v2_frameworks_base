@@ -3767,6 +3767,16 @@ public final class SystemServer implements Dumpable {
         t.traceBegin("startWearableSensingService");
         mSystemServiceManager.startService(WearableSensingManagerService.class);
         t.traceEnd();
+
+        // YozakuraOS: start extra platform services (QuickSwitch, from risingOS/Matrixx).
+        t.traceBegin("StartYozakuraServices");
+        try {
+            new org.yozakura.server.YozakuraServicesStarter(mSystemServiceManager)
+                    .startAllServices();
+        } catch (Throwable e) {
+            Slog.w(TAG, "Failed to start Yozakura services", e);
+        }
+        t.traceEnd();
     }
 
     private static void startSystemUi(Context context, WindowManagerService windowManager) {

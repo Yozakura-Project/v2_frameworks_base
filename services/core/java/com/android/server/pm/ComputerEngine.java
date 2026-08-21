@@ -17,6 +17,7 @@
 package com.android.server.pm;
 
 import android.security.pif.PlayIntegritySpoofService;
+import org.yozakura.server.QuickSwitchService;
 
 import static android.Manifest.permission.DELETE_PACKAGES;
 import static android.Manifest.permission.INSTALL_PACKAGES;
@@ -1806,7 +1807,8 @@ public class ComputerEngine implements Computer {
         enforceCrossUserPermission(callingUid, userId, false /* requireFullPermission */,
                 false /* checkShell */, "get installed packages");
 
-        return getInstalledPackagesBody(flags, userId, callingUid);
+        return QuickSwitchService.recreatePackageList(callingUid, mContext,
+                userId, getInstalledPackagesBody(flags, userId, callingUid));
     }
 
     protected ParceledListSlice<PackageInfo> getInstalledPackagesBody(long flags, int userId,
@@ -4793,7 +4795,7 @@ public class ComputerEngine implements Computer {
             }
         }
 
-        return list;
+        return QuickSwitchService.recreateApplicationList(callingUid, mContext, userId, list);
     }
 
     @Nullable

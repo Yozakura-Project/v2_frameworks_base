@@ -42,6 +42,7 @@ android_library {
 
     static_libs: [
         "androidx.core_core-animation",
+        "com.google.android.material_material",
         "androidx.core_core-ktx",
         "androidx.annotation_annotation",
         "com_android_systemui_flags_lib",

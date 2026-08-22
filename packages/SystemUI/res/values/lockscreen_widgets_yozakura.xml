@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-FileCopyrightText: The YozakuraOS Project / AxionOS Project; SPDX-License-Identifier: Apache-2.0 -->
+<resources>
+    <color name="card_surface_color">@*android:color/system_neutral1_50</color>
+    <color name="lockscreen_widget_active_color_dark">@android:color/system_accent1_100</color>
+    <color name="lockscreen_widget_active_color_light">@android:color/system_accent1_600</color>
+    <color name="lockscreen_widget_background_color_dark">@android:color/system_neutral1_800</color>
+    <color name="lockscreen_widget_background_color_light">@android:color/system_neutral1_50</color>
+    <string name="calculator">Calculator</string>
+    <string name="camera">Camera</string>
+    <string name="clock_timer">Clock/Timer</string>
+    <string name="google_wallet">Google Wallet</string>
+    <string name="omnijaws_weather">OmniJaws</string>
+    <string name="quick_settings_data_label">Mobile data</string>
+    <string name="quick_settings_ringer_label">Ringer mode</string>
+    <string name="torch_active">Torch Active</string>
+    <string name="weather_data_unavailable">Data Unavailable</string>
+</resources>

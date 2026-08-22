@@ -27,6 +27,7 @@ import com.android.systemui.keyguard.ui.view.layout.sections.AodNotificationIcon
 import com.android.systemui.keyguard.ui.view.layout.sections.AodPromotedNotificationSection
 import com.android.systemui.keyguard.ui.view.layout.sections.ClockSection
 import com.android.systemui.keyguard.ui.view.layout.sections.KeyguardClockStyleSection
+import com.android.systemui.keyguard.ui.view.layout.sections.KeyguardWidgetViewSection
 import com.android.systemui.keyguard.ui.view.layout.sections.DefaultDeviceEntrySection
 import com.android.systemui.keyguard.ui.view.layout.sections.DefaultIndicationAreaSection
 import com.android.systemui.keyguard.ui.view.layout.sections.DefaultSettingsPopupMenuSection
@@ -69,6 +70,7 @@ constructor(
     aodBurnInSection: AodBurnInSection,
     clockSection: ClockSection,
     keyguardClockStyleSection: KeyguardClockStyleSection,
+    keyguardWidgetViewSection: KeyguardWidgetViewSection,
     smartspaceSection: SmartspaceSection,
     mediaSection: SplitShadeMediaSection,
     keyguardSliceViewSection: KeyguardSliceViewSection,
@@ -93,6 +95,7 @@ constructor(
             aodBurnInSection,
             clockSection,
             keyguardClockStyleSection,
+            keyguardWidgetViewSection,
             keyguardSliceViewSection,
             mediaSection,
             defaultDeviceEntrySection, // Add LAST: Intentionally has z-order above other views.

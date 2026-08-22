@@ -50,6 +50,15 @@ import com.android.systemui.statusbar.notification.stack.NotificationSectionsMan
 import com.android.systemui.statusbar.phone.LightBarController;
 import com.android.systemui.statusbar.phone.ScreenOffAnimationController;
 import com.android.systemui.statusbar.phone.SystemUIDialogManager;
+import com.android.systemui.statusbar.connectivity.AccessPointController;
+import com.android.systemui.plugins.ActivityStarter;
+import com.android.systemui.statusbar.policy.ConfigurationController;
+import com.android.systemui.statusbar.connectivity.NetworkController;
+import com.android.systemui.bluetooth.ui.viewModel.BluetoothDetailsContentViewModel;
+import com.android.systemui.statusbar.policy.FlashlightController;
+import com.android.systemui.statusbar.policy.HotspotController;
+import com.android.systemui.qs.tiles.dialog.InternetDialogManager;
+import com.android.systemui.media.dialog.MediaOutputDialogManager;
 import com.android.systemui.statusbar.policy.BluetoothController;
 import com.android.systemui.statusbar.policy.DeviceProvisionedController;
 import com.android.systemui.statusbar.window.StatusBarWindowControllerStore;
@@ -116,6 +125,15 @@ public class Dependency {
     @Inject DumpManager mDumpManager;
 
     @Inject Lazy<BroadcastDispatcher> mBroadcastDispatcher;
+    @Inject Lazy<AccessPointController> mAccessPointController;
+    @Inject Lazy<ActivityStarter> mActivityStarter;
+    @Inject Lazy<ConfigurationController> mConfigurationController;
+    @Inject Lazy<NetworkController> mNetworkController;
+    @Inject Lazy<BluetoothDetailsContentViewModel> mBluetoothDetailsContentViewModel;
+    @Inject Lazy<FlashlightController> mFlashlightController;
+    @Inject Lazy<HotspotController> mHotspotController;
+    @Inject Lazy<InternetDialogManager> mInternetDialogManager;
+    @Inject Lazy<MediaOutputDialogManager> mMediaOutputDialogManager;
     @Inject Lazy<BluetoothController> mBluetoothController;
     @Inject Lazy<KeyguardUpdateMonitor> mKeyguardUpdateMonitor;
     @Inject Lazy<DeviceProvisionedController> mDeviceProvisionedController;
@@ -164,6 +182,15 @@ public class Dependency {
         mProviders.put(TIME_TICK_HANDLER, mTimeTickHandler::get);
         mProviders.put(BG_LOOPER, mBgLooper::get);
         mProviders.put(BroadcastDispatcher.class, mBroadcastDispatcher::get);
+        mProviders.put(AccessPointController.class, mAccessPointController::get);
+        mProviders.put(ActivityStarter.class, mActivityStarter::get);
+        mProviders.put(ConfigurationController.class, mConfigurationController::get);
+        mProviders.put(NetworkController.class, mNetworkController::get);
+        mProviders.put(BluetoothDetailsContentViewModel.class, mBluetoothDetailsContentViewModel::get);
+        mProviders.put(FlashlightController.class, mFlashlightController::get);
+        mProviders.put(HotspotController.class, mHotspotController::get);
+        mProviders.put(InternetDialogManager.class, mInternetDialogManager::get);
+        mProviders.put(MediaOutputDialogManager.class, mMediaOutputDialogManager::get);
         mProviders.put(BluetoothController.class, mBluetoothController::get);
         mProviders.put(KeyguardUpdateMonitor.class, mKeyguardUpdateMonitor::get);
         mProviders.put(DeviceProvisionedController.class, mDeviceProvisionedController::get);

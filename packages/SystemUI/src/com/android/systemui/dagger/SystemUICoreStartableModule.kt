@@ -18,6 +18,7 @@ package com.android.systemui.dagger
 
 import com.android.keyguard.KeyguardBiometricLockoutLogger
 import com.android.systemui.CoreStartable
+import com.android.systemui.applocker.AxAppLockerHelper
 import com.android.systemui.LatencyTester
 import com.android.systemui.SliceBroadcastRelayHandler
 import com.android.systemui.accessibility.Magnification
@@ -344,4 +345,10 @@ abstract class SystemUICoreStartableModule {
     abstract fun bindSysUIKeyGestureEventInitializer(
         keyGestureEventInitializer: SysUIKeyGestureEventInitializer
     ): CoreStartable
+
+    /** Yozakura(AppLock) */
+    @Binds
+    @IntoMap
+    @ClassKey(AxAppLockerHelper::class)
+    abstract fun bindAxAppLockerHelper(impl: AxAppLockerHelper): CoreStartable
 }

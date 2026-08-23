@@ -6612,6 +6612,12 @@ public abstract class Context {
     public static final String THEME_ENGINE_SERVICE = "theme_engine";
 
     /**
+     * Use with {@link #getSystemService(String)} to retrieve the app-lock sandbox service.
+     * @hide
+     */
+    public static final String AX_SANDBOX_SERVICE = "ax_sandbox";
+
+    /**
      * Use with {@link #getSystemService(String)} to retrieve a {@link ThemeManager} for theme
      * management.
      *

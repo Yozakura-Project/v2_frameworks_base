@@ -97,6 +97,8 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+
+import com.android.server.wm.AxSandboxService;
 import android.app.ActivityOptions;
 import android.app.IApplicationThread;
 import android.app.PendingIntent;
@@ -847,6 +849,22 @@ class ActivityStarter {
 
                 final long origId = Binder.clearCallingIdentity();
                 try {
+                    // Yozakura(AppLock): block launching a locked (hidden) app unless the
+                    // caller is the same app / system / an allowlisted launcher.
+                    if (mRequest.intent != null && mRequest.intent.getComponent() != null) {
+                        String targetPkg = mRequest.intent.getComponent().getPackageName();
+                        String callerPkg = mRequest.callingPackage;
+                        if (targetPkg != null
+                                && AxSandboxService.get().isPackageHidden(targetPkg)
+                                && !AxSandboxService.BLACKLISTED_PACKAGES.contains(callerPkg)
+                                && !targetPkg.equals(callerPkg)) {
+                            int callerUid = mRequest.callingUid;
+                            if (callerUid != android.os.Process.SYSTEM_UID
+                                    && callerUid != android.os.Process.ROOT_UID) {
+                                return ActivityManager.START_CLASS_NOT_FOUND;
+                            }
+                        }
+                    }
                     res = resolveToHeavyWeightSwitcherIfNeeded();
                     if (res != START_SUCCESS) {
                         return res;

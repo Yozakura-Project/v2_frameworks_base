@@ -460,6 +460,8 @@ import com.android.server.SystemServiceManager;
 import com.android.server.ThreadPriorityBooster;
 import com.android.server.UiThread;
 import com.android.server.Watchdog;
+import com.android.server.NtServiceInjector;
+import com.android.server.wm.AxSandboxService;
 import com.android.server.spoof.AxSpoofManager;
 import com.android.server.am.LowMemDetector.MemFactor;
 import com.android.server.am.psc.ProcessRecordInternal;
@@ -9060,6 +9062,15 @@ public class ActivityManagerService extends IActivityManager.Stub
             mAxSpoofManager.systemReady();
         } catch (Throwable e) {
             Slog.w(TAG, "Failed to start AxSpoofManager", e);
+        }
+
+        // Yozakura(AppLock): populate NtServiceInjector and publish the sandbox service.
+        try {
+            NtServiceInjector.get().setCtx(mContext);
+            NtServiceInjector.get().setActivityManagerService(this);
+            AxSandboxService.systemReady();
+        } catch (Throwable e) {
+            Slog.w(TAG, "Failed to start AxSandboxService", e);
         }
 
         try {

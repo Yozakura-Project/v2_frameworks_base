@@ -67,8 +67,14 @@ public class ThemeOverlayApplier implements Dumpable {
     @VisibleForTesting
     static final String SYSUI_PACKAGE = "com.android.systemui";
 
+    // Must match the overlay actually shipped in
+    // packages/overlays/Lineage/customizations/BlackTheme. The Infinity name
+    // (com.android.system.theme.black) came across with the theme engine port and
+    // does not exist here, so getOverlayID threw IllegalStateException and took
+    // the whole of checkDarkUserOverlays with it - neither the black overlay was
+    // enabled nor the neutral one disabled, and the setting did nothing.
     static final String OVERLAY_BLACK_THEME =
-            "com.android.system.theme.black";
+            "org.lineageos.overlay.customization.blacktheme";
 
     static final String OVERLAY_CATEGORY_DYNAMIC_COLOR =
             "android.theme.customization.dynamic_color";

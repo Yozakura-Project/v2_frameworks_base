@@ -24,7 +24,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -437,11 +436,12 @@ public class OnTheGoService extends Service {
                 .setOngoing(!(type == 1 || type == 2));
 
         if (type == 1 || type == 2) {
-            final ComponentName cn = new ComponentName("com.android.systemui",
-                    "com.android.systemui.spark.onthego.OnTheGoService");
-            final Intent startIntent = new Intent();
-            startIntent.setComponent(cn);
-            startIntent.setAction(ACTION_START);
+            // Was a hardcoded "com.android.systemui.spark.onthego.OnTheGoService",
+            // a SparkOS name that came across with the port. This service is
+            // registered as .infinity.onthego.OnTheGoService, so the restart
+            // action on the notification pointed at nothing and did nothing.
+            final Intent startIntent = new Intent(this, OnTheGoService.class)
+                    .setAction(ACTION_START);
             final PendingIntent startPendIntent = PendingIntent.getService(this, 0, startIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 

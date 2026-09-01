@@ -234,6 +234,8 @@ import com.android.server.pm.dex.OdsignStatsLogger;
 import com.android.server.pm.permission.PermissionMigrationHelper;
 import com.android.server.pm.permission.PermissionMigrationHelperImpl;
 import com.android.server.pm.verify.domain.DomainVerificationService;
+import com.android.server.pocket.PocketBridgeService;
+import com.android.server.pocket.PocketService;
 import com.android.server.policy.AppOpsPolicy;
 import com.android.server.policy.PermissionPolicyService;
 import com.android.server.policy.PhoneWindowManager;
@@ -2853,6 +2855,24 @@ public final class SystemServer implements Dumpable {
             t.traceBegin("StartCrossProfileAppsService");
             mSystemServiceManager.startService(CrossProfileAppsService.class);
             t.traceEnd();
+
+            // cp122b, first half: start the pocket services. The resources this
+            // gates on landed in cp122a (yozakura_pocket.xml). PhoneWindowManager
+            // is deliberately left untouched here - it is the half that can
+            // bootloop, so it goes in separately once this is seen to boot.
+            if (context.getResources().getBoolean(
+                    com.android.internal.R.bool.config_pocketModeSupported)) {
+                t.traceBegin("StartPocketService");
+                mSystemServiceManager.startService(PocketService.class);
+                t.traceEnd();
+            }
+
+            if (!context.getResources().getString(
+                    com.android.internal.R.string.config_pocketBridgeSysfsInpocket).isEmpty()) {
+                t.traceBegin("StartPocketBridgeService");
+                mSystemServiceManager.startService(PocketBridgeService.class);
+                t.traceEnd();
+            }
 
             t.traceBegin("StartPeopleService");
             mSystemServiceManager.startService(PeopleService.class);

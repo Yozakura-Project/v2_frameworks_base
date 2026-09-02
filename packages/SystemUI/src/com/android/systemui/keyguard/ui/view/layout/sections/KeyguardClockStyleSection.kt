@@ -37,17 +37,18 @@ constructor(
 ) : KeyguardSection() {
     
     private var clockStyleView: ClockStyle? = null
-    private var isCustomClockEnabled: Boolean = false
-    
+
     override fun addViews(constraintLayout: ConstraintLayout) {
-        
-        val clockStyle = secureSettings.getIntForUser(
-            ClockStyle.CLOCK_STYLE_KEY, 0, UserHandle.USER_CURRENT
-        )
-        isCustomClockEnabled = clockStyle != 0
-        
-        if (!isCustomClockEnabled) return
-        
+        // YozakuraOS: attach the view unconditionally. ClockStyle registers its own tunable
+        // for lock_screen_custom_clock_style and drives its own visibility, so once attached
+        // it stays correct on its own.
+        //
+        // This used to return early when no custom clock was selected, which meant the view
+        // was never created for anyone who turned a clock face on after boot:
+        // KeyguardBlueprint.replaceViews skips every section present in both the old and the
+        // new blueprint, and this section is in both Default and SplitShade, so addViews was
+        // never called a second time. The result was a lock screen with no clock at all,
+        // because ClockSection had already hidden the AOSP one.
         constraintLayout.findViewById<View?>(R.id.clock_ls)?.let { existingView ->
             (existingView.parent as? ViewGroup)?.removeView(existingView)
         }
@@ -74,7 +75,9 @@ constructor(
     }
     
     override fun applyConstraints(constraintSet: ConstraintSet) {
-        if (!isCustomClockEnabled) return
+        // Read live, from the same single source of truth ClockSection uses, rather than a
+        // value cached back when addViews happened to run.
+        if (!ClockStyle.isCustomClockEnabled(context)) return
         
         constraintSet.apply {
             // Clock positioning - TOP of hierarchy

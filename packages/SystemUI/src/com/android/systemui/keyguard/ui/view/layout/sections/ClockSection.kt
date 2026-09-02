@@ -127,6 +127,20 @@ constructor(
             if (ClockStyle.isCustomClockEnabled(context)) {
                 setAlpha(ClockViewIds.LOCKSCREEN_CLOCK_VIEW_SMALL, 0F)
                 setAlpha(ClockViewIds.LOCKSCREEN_CLOCK_VIEW_LARGE, 0F)
+                // YozakuraOS: the custom clock face draws its own date, so the legacy slice
+                // has to go too or the two dates sit on top of each other.
+                //
+                // KeyguardSliceViewSection cannot do this on its own: it skips addViews when
+                // a custom clock is active, so when the user switches a clock face on, the
+                // slice it added earlier is simply left attached - replaceViews skips sections
+                // present in both blueprints, so removeViews never runs either. Hide it from
+                // here, with the same setAlpha the AOSP clock above uses.
+                setAlpha(R.id.keyguard_slice_view, 0F)
+            } else {
+                // Put it back. Setting the alpha only one way is exactly what left the AOSP
+                // clock hidden after a custom clock was turned off, and the slice has no
+                // equivalent of the setAlpha(..., 1F) the clock faces get above.
+                setAlpha(R.id.keyguard_slice_view, 1F)
             }
 
             if (!keyguardClockViewModel.isLargeClockVisible.value) {

@@ -106,7 +106,16 @@ constructor(
     }
 
     override fun applyConstraints(constraintSet: ConstraintSet) {
-        if (smartspaceController.isEnabled || isCustomClockEnabled) return
+        if (isCustomClockEnabled) {
+            // YozakuraOS: the custom clock face draws its own date, so the legacy slice has to
+            // be hidden or the two dates sit on top of each other. Returning without hiding it
+            // - which is what this did before - left the slice on screen at its unconstrained
+            // position. That was invisible for as long as the custom clock itself never
+            // rendered; once it did, the overlap showed up.
+            constraintSet.setVisibility(R.id.keyguard_slice_view, ConstraintSet.GONE)
+            return
+        }
+        if (smartspaceController.isEnabled) return
         constraintSet.apply {
             connect(
                 R.id.keyguard_slice_view,

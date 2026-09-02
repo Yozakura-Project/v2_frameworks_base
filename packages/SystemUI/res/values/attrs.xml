@@ -47,6 +47,9 @@
             <enum name="gone" value="2" />
         </attr>
         <attr name="showDark" format="boolean" />
+        <!-- YozakuraOS: the QS header draws its own date with a VariableDateView, so the
+             status bar date has to be suppressed on that instance or it shows twice. -->
+        <attr name="showDate" format="boolean" />
     </declare-styleable>
     <attr name="orientation">
         <enum name="horizontal" value="0" />

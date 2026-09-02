@@ -121,6 +121,8 @@ public class Clock extends TextView implements
     private int mAmPmStyle = AM_PM_STYLE_GONE;
     private boolean mShowSeconds;
     private int mClockDate;
+    // YozakuraOS: false on the QS header instance, which has its own date view.
+    private boolean mShowDate = true;
     private String mClockDateFormat = "EEE, MMM d";
     private int mClockDateStyle;
     private int mClockDatePosition;
@@ -158,6 +160,7 @@ public class Clock extends TextView implements
                 0, 0);
         try {
             mAmPmStyle = readClockAmPm(context);
+            mShowDate = a.getBoolean(R.styleable.Clock_showDate, true);
             mContentObserver = new ContentObserver(null) {
                 @Override
                 public void onChange(boolean selfChange) {
@@ -360,7 +363,7 @@ public class Clock extends TextView implements
         if (mDemoMode || mCalendar == null) return;
         mCalendar.setTimeInMillis(System.currentTimeMillis());
         CharSequence smallTime = getSmallTime();
-        if (mClockDate != DATE_HIDDEN && mCalendar != null) {
+        if (mShowDate && mClockDate != DATE_HIDDEN && mCalendar != null) {
             String dateStr = DateFormat.format(mClockDateFormat, mCalendar).toString();
             final java.util.Locale loc = java.util.Locale.getDefault();
             if (mClockDateStyle == DATE_STYLE_LOWERCASE) {

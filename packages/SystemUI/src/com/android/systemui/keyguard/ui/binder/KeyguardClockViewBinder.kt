@@ -16,6 +16,11 @@
 
 package com.android.systemui.keyguard.ui.binder
 
+import android.database.ContentObserver
+import android.os.Handler
+import android.os.Looper
+import android.os.UserHandle
+import android.provider.Settings
 import android.transition.AutoTransition
 import android.transition.TransitionManager
 import android.transition.TransitionSet
@@ -29,6 +34,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.android.app.tracing.coroutines.launchTraced as launch
+import com.android.systemui.clocks.ClockStyle
 import com.android.systemui.keyguard.domain.interactor.KeyguardBlueprintInteractor
 import com.android.systemui.keyguard.domain.interactor.KeyguardClockInteractor
 import com.android.systemui.keyguard.shared.model.ClockSize
@@ -63,6 +69,29 @@ object KeyguardClockViewBinder {
         aodBurnInViewModel: AodBurnInViewModel,
     ): DisposableHandle {
         val disposables = DisposableHandles()
+
+        // YozakuraOS: nothing in the keyguard observed lock_screen_custom_clock_style, so a
+        // change to it did not re-apply the constraints. ClockSection sets the AOSP clock's
+        // alpha to 0 while a custom clock is active; turning the custom clock back off left
+        // that alpha at 0 and the lock screen ended up with no clock at all, until some
+        // unrelated configuration change happened to re-apply the blueprint.
+        val customClockStyleObserver =
+            object : ContentObserver(Handler(Looper.getMainLooper())) {
+                override fun onChange(selfChange: Boolean) {
+                    blueprintInteractor.refreshBlueprint(Type.DefaultTransition)
+                }
+            }
+        keyguardRootView.context.contentResolver.registerContentObserver(
+            Settings.Secure.getUriFor(ClockStyle.CLOCK_STYLE_KEY),
+            false,
+            customClockStyleObserver,
+            UserHandle.USER_ALL,
+        )
+        disposables += DisposableHandle {
+            keyguardRootView.context.contentResolver.unregisterContentObserver(
+                customClockStyleObserver
+            )
+        }
         disposables +=
             keyguardRootView.repeatWhenAttached {
                 repeatOnLifecycle(Lifecycle.State.CREATED) {
